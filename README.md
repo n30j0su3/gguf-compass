@@ -64,9 +64,11 @@ npx serve .
 # Luego abre http://localhost:8080
 ```
 
-### Opción 3: GitHub Pages
+### Opción 3: GitHub Pages (Live Demo)
 
-Visita: `https://n30j0su3.github.io/gguf-compass/`
+Visita: **https://n30j0su3.github.io/gguf-compass/**
+
+> La demo live siempre refleja la última versión de `main`.
 
 ---
 
