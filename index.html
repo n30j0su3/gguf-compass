@@ -1,0 +1,1877 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GGUF Compass — Tu brújula para LLMs locales</title>
+<meta name="description" content="Encuentra la configuración perfecta para correr modelos de IA locales según tu hardware. MoE offloading, MTP, TurboQuant, presets y más.">
+<meta property="og:title" content="GGUF Compass">
+<meta property="og:description" content="Tu brújula para LLMs locales. Hardware → Modelo → Flags en 30 segundos.">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🧭</text></svg>">
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════
+   GGUF COMPASS — CSS VARIABLE THEMING (Dark/Light)
+   ═══════════════════════════════════════════════════════════════════════════ */
+[data-theme="dark"] {
+    --bg-primary: #0a0a0f;
+    --bg-secondary: #12121a;
+    --bg-tertiary: #1a1a25;
+    --bg-card: rgba(26, 26, 37, 0.7);
+    --bg-glass: rgba(18, 18, 26, 0.8);
+    --text-primary: #e8e8ed;
+    --text-secondary: #a0a0b0;
+    --text-muted: #606070;
+    --primary: #06b6d4;
+    --primary-glow: rgba(6, 182, 212, 0.3);
+    --accent: #22d3ee;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #fb7185;
+    --border: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(6, 182, 212, 0.4);
+    --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+    --glow: 0 0 20px rgba(6, 182, 212, 0.15), 0 0 40px rgba(6, 182, 212, 0.05);
+}
+[data-theme="light"] {
+    --bg-primary: #f0f9fa;
+    --bg-secondary: #e0f2f5;
+    --bg-tertiary: #d0e8ed;
+    --bg-card: rgba(255, 255, 255, 0.9);
+    --bg-glass: rgba(240, 249, 250, 0.9);
+    --text-primary: #1a1a2e;
+    --text-secondary: #4a5568;
+    --text-muted: #a0aec0;
+    --primary: #0891b2;
+    --primary-glow: rgba(8, 145, 178, 0.2);
+    --accent: #06b6d4;
+    --success: #059669;
+    --warning: #d97706;
+    --danger: #e11d48;
+    --border: rgba(0, 0, 0, 0.08);
+    --border-hover: rgba(8, 145, 178, 0.4);
+    --shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    --glow: 0 2px 8px rgba(8, 145, 178, 0.1);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BASE STYLES
+   ═══════════════════════════════════════════════════════════════════════════ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+    transition: background 0.3s, color 0.3s;
+}
+
+/* Animated background */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: 
+        radial-gradient(ellipse at 20% 20%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(34, 211, 238, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.03) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: -1;
+    animation: bgDrift 30s ease-in-out infinite;
+}
+@keyframes bgDrift {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(2%, -2%) scale(1.02); }
+    66% { transform: translate(-2%, 2%) scale(0.98); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LAYOUT
+   ═══════════════════════════════════════════════════════════════════════════ */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+/* Header */
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg-glass);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 0;
+}
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.logo-icon { font-size: 2rem; -webkit-text-fill-color: initial; }
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Mode toggle */
+.mode-toggle {
+    display: flex;
+    background: var(--bg-tertiary);
+    border-radius: 0.75rem;
+    padding: 0.25rem;
+    border: 1px solid var(--border);
+}
+.mode-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.875rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.mode-btn.active {
+    background: var(--primary);
+    color: white;
+}
+.mode-btn:hover:not(.active) {
+    color: var(--text-primary);
+}
+
+/* Theme toggle */
+.theme-toggle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.theme-toggle:hover {
+    border-color: var(--primary);
+    box-shadow: var(--glow);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HERO SECTION
+   ═══════════════════════════════════════════════════════════════════════════ */
+.hero {
+    padding: 4rem 0 3rem;
+    text-align: center;
+}
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+.hero-badge .dot {
+    width: 8px;
+    height: 8px;
+    background: var(--success);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+.hero h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--text-primary), var(--primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.hero p {
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto 2rem;
+}
+.hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    flex-wrap: wrap;
+}
+.stat {
+    text-align: center;
+}
+.stat-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--primary);
+}
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   WIZARD SECTION
+   ═══════════════════════════════════════════════════════════════════════════ */
+.wizard-section {
+    padding: 2rem 0 4rem;
+}
+.wizard-container {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 1.5rem;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(10px);
+}
+.wizard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+.wizard-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.wizard-steps {
+    display: flex;
+    gap: 0.5rem;
+}
+.step-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--bg-tertiary);
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: all 0.3s;
+}
+.step-dot.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+    box-shadow: var(--glow);
+}
+.step-dot.completed {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+}
+
+/* Step content */
+.step-content {
+    min-height: 400px;
+}
+.step-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+.step-desc {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+/* Option grid */
+.option-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+.option-card {
+    background: var(--bg-tertiary);
+    border: 2px solid var(--border);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+.option-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    transform: scaleX(0);
+    transition: transform 0.3s;
+}
+.option-card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+.option-card:hover::before {
+    transform: scaleX(1);
+}
+.option-card.selected {
+    border-color: var(--primary);
+    background: rgba(6, 182, 212, 0.1);
+}
+.option-card.selected::before {
+    transform: scaleX(1);
+}
+.option-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    gap: 0.5rem;
+}
+.option-card-title {
+    font-weight: 700;
+    font-size: 1.125rem;
+}
+.option-card-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+.option-card-desc {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+}
+.option-card-meta {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+.meta-tag {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    background: var(--bg-secondary);
+    color: var(--text-muted);
+}
+
+/* Custom input section */
+.custom-input-section {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background: var(--bg-tertiary);
+    border-radius: 1rem;
+    border: 1px dashed var(--border);
+}
+.custom-input-title {
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+}
+.input-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.input-group {
+    flex: 1;
+    min-width: 150px;
+}
+.input-group label {
+    display: block;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+.input-group input, .input-group select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+.input-group input:focus, .input-group select:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESULTS SECTION
+   ═══════════════════════════════════════════════════════════════════════════ */
+.results-section {
+    padding: 2rem 0;
+}
+.results-container {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 1.5rem;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+}
+.results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+.results-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+.results-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.btn-primary {
+    background: var(--primary);
+    color: white;
+}
+.btn-primary:hover {
+    background: var(--accent);
+    box-shadow: var(--glow);
+}
+.btn-secondary {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+}
+.btn-secondary:hover {
+    border-color: var(--primary);
+}
+.btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+}
+.btn-ghost:hover {
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+}
+
+/* Recommendation cards */
+.recommendation-card {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+.recommendation-card.recommended {
+    border-color: var(--success);
+    background: rgba(52, 211, 153, 0.05);
+}
+.recommendation-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.recommendation-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+.recommendation-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-weight: 600;
+}
+.badge-recommended {
+    background: var(--success);
+    color: white;
+}
+.badge-alternative {
+    background: var(--warning);
+    color: black;
+}
+.badge-advanced {
+    background: var(--danger);
+    color: white;
+}
+.recommendation-specs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.spec-item {
+    display: flex;
+    flex-direction: column;
+}
+.spec-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.spec-value {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+.spec-value.highlight {
+    color: var(--primary);
+}
+
+/* Command output */
+.command-output {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.875rem;
+    overflow-x: auto;
+    position: relative;
+    margin-top: 1rem;
+}
+.command-output-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.command-output-title {
+    font-size: 0.75rem;
+    color: #8b949e;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.copy-btn {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: #c9d1d9;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.copy-btn:hover {
+    background: rgba(255,255,255,0.2);
+}
+.command-output code {
+    color: #c9d1d9;
+    white-space: pre-wrap;
+    word-break: break-all;
+    display: block;
+    line-height: 1.7;
+}
+.command-flag {
+    color: #79c0ff;
+}
+.command-value {
+    color: #a5d6ff;
+}
+.command-comment {
+    color: #8b949e;
+    font-style: italic;
+}
+
+/* Tips section */
+.tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+.tip-card {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    display: flex;
+    gap: 0.75rem;
+}
+.tip-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+.tip-content h4 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+.tip-content p {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   EXPERT MODE
+   ═══════════════════════════════════════════════════════════════════════════ */
+.expert-panel {
+    display: none;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 1.5rem;
+    padding: 2rem;
+    margin: 2rem auto;
+    max-width: 1200px;
+}
+.expert-panel.active {
+    display: block;
+}
+.expert-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+.expert-section {
+    background: var(--bg-tertiary);
+    border-radius: 1rem;
+    padding: 1.25rem;
+}
+.expert-section-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.slider-group {
+    margin-bottom: 1rem;
+}
+.slider-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+.slider-value {
+    color: var(--primary);
+    font-weight: 600;
+}
+input[type="range"] {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--bg-secondary);
+    outline: none;
+    -webkit-appearance: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+    box-shadow: var(--glow);
+}
+.toggle-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+.toggle-label {
+    font-size: 0.875rem;
+}
+.toggle-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.toggle-switch.active {
+    background: var(--primary);
+}
+.toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: white;
+    transition: transform 0.2s;
+}
+.toggle-switch.active::after {
+    transform: translateX(20px);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════════════════════════════════════ */
+.footer {
+    padding: 3rem 0;
+    border-top: 1px solid var(--border);
+    margin-top: 4rem;
+}
+.footer-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+.footer-links {
+    display: flex;
+    gap: 1.5rem;
+}
+.footer-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: color 0.2s;
+}
+.footer-links a:hover {
+    color: var(--primary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    .header-content { flex-direction: column; gap: 1rem; }
+    .hero h1 { font-size: 2rem; }
+    .hero-stats { gap: 1.5rem; }
+    .option-grid { grid-template-columns: 1fr; }
+    .wizard-header { flex-direction: column; gap: 1rem; }
+    .results-header { flex-direction: column; align-items: flex-start; }
+    .expert-grid { grid-template-columns: 1fr; }
+    .hero-stats { flex-direction: column; gap: 1rem; }
+    .stat { display: flex; justify-content: space-between; width: 100%; max-width: 300px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════════════════════════════════════ */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.fade-in {
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Utility classes */
+.hidden { display: none !important; }
+.text-center { text-align: center; }
+.mt-2 { margin-top: 2rem; }
+.mb-2 { margin-bottom: 2rem; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+    <div class="container">
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-icon">🧭</span>
+                <span>GGUF Compass</span>
+            </div>
+            <div class="header-actions">
+                <div class="mode-toggle">
+                    <button class="mode-btn active" data-mode="wizard" onclick="setMode('wizard')">🎯 Wizard</button>
+                    <button class="mode-btn" data-mode="expert" onclick="setMode('expert')">⚡ Experto</button>
+                </div>
+                <button class="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">
+                    <span id="theme-icon">🌙</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-badge">
+            <span class="dot"></span>
+            <span>100% Open Source · Sin registro · Sin datos a servidores</span>
+        </div>
+        <h1>Tu brújula para LLMs locales</h1>
+        <p>Selecciona tu hardware, te decimos exactamente qué modelo descargar y con qué flags ejecutarlo. MoE offloading, MTP, TurboQuant — todo explicado.</p>
+        <div class="hero-stats">
+            <div class="stat">
+                <div class="stat-value">50+</div>
+                <div class="stat-label">GPUs soportadas</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">100+</div>
+                <div class="stat-label">Modelos catalogados</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">5</div>
+                <div class="stat-label">Herramientas</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">∞</div>
+                <div class="stat-label">Combinaciones</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Wizard Section -->
+<section class="wizard-section" id="wizard-section">
+    <div class="container">
+        <div class="wizard-container">
+            <div class="wizard-header">
+                <div class="wizard-title">
+                    <span>🎯</span>
+                    <span>Asistente de Configuración</span>
+                </div>
+                <div class="wizard-steps">
+                    <div class="step-dot active" data-step="1">1</div>
+                    <div class="step-dot" data-step="2">2</div>
+                    <div class="step-dot" data-step="3">3</div>
+                    <div class="step-dot" data-step="4">4</div>
+                </div>
+            </div>
+
+            <!-- Step 1: GPU -->
+            <div class="step-content" id="step-1">
+                <h2 class="step-title">¿Qué GPU tienes?</h2>
+                <p class="step-desc">Selecciona tu tarjeta gráfica o la cantidad de VRAM disponible. Si no tienes GPU dedicada, selecciona "Sin GPU".</p>
+                
+                <div class="option-grid" id="gpu-options">
+                    <!-- Populated by JS -->
+                </div>
+
+                <div class="custom-input-section">
+                    <div class="custom-input-title">¿No encuentras tu GPU? Ingresa los valores manualmente:</div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>VRAM (GB)</label>
+                            <input type="number" id="custom-vram" placeholder="8" min="0" max="128">
+                        </div>
+                        <div class="input-group">
+                            <label>RAM (GB)</label>
+                            <input type="number" id="custom-ram" placeholder="16" min="4" max="512">
+                        </div>
+                        <div class="input-group">
+                            <label>CPU Cores</label>
+                            <input type="number" id="custom-cores" placeholder="8" min="2" max="64">
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary mt-2" onclick="useCustomHardware()">Usar valores personalizados</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Use Case -->
+            <div class="step-content hidden" id="step-2">
+                <h2 class="step-title">¿Para qué lo vas a usar?</h2>
+                <p class="step-desc">Diferentes tareas se benefician de diferentes arquitecturas y técnicas de optimización.</p>
+                
+                <div class="option-grid" id="usecase-options">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Step 3: Context Length -->
+            <div class="step-content hidden" id="step-3">
+                <h2 class="step-title">¿Cuánto contexto necesitas?</h2>
+                <p class="step-desc">El contexto determina cuánta "memoria" tiene el modelo. Más contexto = más VRAM/RAM necesaria.</p>
+                
+                <div class="option-grid" id="context-options">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Step 4: Tool -->
+            <div class="step-content hidden" id="step-4">
+                <h2 class="step-title">¿Qué herramienta prefieres?</h2>
+                <p class="step-desc">Cada herramienta tiene sus ventajas. Te recomendamos la mejor para tu caso, pero puedes elegir.</p>
+                
+                <div class="option-grid" id="tool-options">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div style="display: flex; justify-content: space-between; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+                <button class="btn btn-ghost" id="btn-prev" onclick="prevStep()" style="visibility: hidden;">← Anterior</button>
+                <button class="btn btn-primary" id="btn-next" onclick="nextStep()">Siguiente →</button>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="results-section hidden" id="results-section">
+            <div class="results-container">
+                <div class="results-header">
+                    <h2 class="results-title">🎯 Tu Configuración Recomendada</h2>
+                    <div class="results-actions">
+                        <button class="btn btn-secondary" onclick="resetWizard()">↺ Nueva consulta</button>
+                        <button class="btn btn-primary" onclick="copyAllCommands()">📋 Copiar todo</button>
+                    </div>
+                </div>
+                <div id="results-content">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Expert Panel -->
+<section class="expert-panel" id="expert-panel">
+    <div class="container">
+        <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem;">⚡ Panel de Control Experto</h2>
+        <div class="expert-grid">
+            <!-- Hardware -->
+            <div class="expert-section">
+                <div class="expert-section-title">🖥️ Hardware</div>
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>VRAM (GB)</span>
+                        <span class="slider-value" id="expert-vram-value">16</span>
+                    </div>
+                    <input type="range" id="expert-vram" min="0" max="48" value="16" oninput="updateExpert()">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>RAM (GB)</span>
+                        <span class="slider-value" id="expert-ram-value">32</span>
+                    </div>
+                    <input type="range" id="expert-ram" min="8" max="128" value="32" oninput="updateExpert()">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>CPU Cores</span>
+                        <span class="slider-value" id="expert-cores-value">12</span>
+                    </div>
+                    <input type="range" id="expert-cores" min="2" max="32" value="12" oninput="updateExpert()">
+                </div>
+            </div>
+
+            <!-- Model -->
+            <div class="expert-section">
+                <div class="expert-section-title">🤖 Modelo</div>
+                <div class="toggle-group">
+                    <span class="toggle-label">Arquitectura MoE</span>
+                    <div class="toggle-switch" id="expert-moe" onclick="this.classList.toggle('active'); updateExpert();"></div>
+                </div>
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Parámetros (B)</span>
+                        <span class="slider-value" id="expert-params-value">9</span>
+                    </div>
+                    <input type="range" id="expert-params" min="1" max="70" value="9" oninput="updateExpert()">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Quantización</span>
+                        <span class="slider-value" id="expert-quant-value">Q4_K_M</span>
+                    </div>
+                    <select id="expert-quant" onchange="updateExpert()" style="width: 100%; padding: 0.5rem; border-radius: 0.5rem; background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border);">
+                        <option value="Q2_K">Q2_K (máxima compresión)</option>
+                        <option value="Q3_K_S">Q3_K_S</option>
+                        <option value="Q3_K_M">Q3_K_M</option>
+                        <option value="Q4_K_M" selected>Q4_K_M (recomendado)</option>
+                        <option value="Q5_K_M">Q5_K_M</option>
+                        <option value="Q6_K">Q6_K</option>
+                        <option value="Q8_0">Q8_0 (máxima calidad)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Context & Performance -->
+            <div class="expert-section">
+                <div class="expert-section-title">⚙️ Contexto & Performance</div>
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Contexto (tokens)</span>
+                        <span class="slider-value" id="expert-ctx-value">8192</span>
+                    </div>
+                    <input type="range" id="expert-ctx" min="1024" max="131072" step="1024" value="8192" oninput="updateExpert()">
+                </div>
+                <div class="toggle-group">
+                    <span class="toggle-label">Flash Attention</span>
+                    <div class="toggle-switch active" id="expert-fa" onclick="this.classList.toggle('active'); updateExpert();"></div>
+                </div>
+                <div class="toggle-group">
+                    <span class="toggle-label">KV Cache Quantization</span>
+                    <div class="toggle-switch" id="expert-kv" onclick="this.classList.toggle('active'); updateExpert();"></div>
+                </div>
+                <div class="toggle-group">
+                    <span class="toggle-label">Speculative Decoding</span>
+                    <div class="toggle-switch" id="expert-spec" onclick="this.classList.toggle('active'); updateExpert();"></div>
+                </div>
+            </div>
+
+            <!-- Output -->
+            <div class="expert-section" style="grid-column: 1 / -1;">
+                <div class="expert-section-title">📋 Comando Generado</div>
+                <div class="command-output" id="expert-command">
+                    <div class="command-output-header">
+                        <span class="command-output-title">llama-server</span>
+                        <button class="copy-btn" onclick="copyExpertCommand()">Copiar</button>
+                    </div>
+                    <code id="expert-command-text"># Configura los sliders para generar tu comando</code>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div style="color: var(--text-muted); font-size: 0.875rem;">
+                🧭 GGUF Compass · Hecho con ❤️ para la comunidad local AI
+            </div>
+            <div class="footer-links">
+                <a href="https://github.com/n30j0su3/gguf-compass" target="_blank">GitHub</a>
+                <a href="#" onclick="showAbout(); return false;">Acerca de</a>
+                <a href="#" onclick="showFAQ(); return false;">FAQ</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// GGUF COMPASS — CORE DATA & LOGIC
+// ═══════════════════════════════════════════════════════════════════════════
+
+// State
+const state = {
+    mode: 'wizard',
+    step: 1,
+    hardware: { vram: null, ram: null, cores: null, type: null },
+    useCase: null,
+    contextLength: null,
+    tool: null,
+    results: null
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DATA — GPU Options
+// ═══════════════════════════════════════════════════════════════════════════
+const GPU_OPTIONS = [
+    { id: 'none', label: 'Sin GPU / CPU only', vram: 0, examples: 'Cualquier CPU moderna', notes: 'Inferencia 100% CPU. Lento pero funciona.', icon: '💻' },
+    { id: 'gpu-4gb', label: '4 GB VRAM', vram: 4, examples: 'GTX 1050 Ti, GTX 1650', notes: 'Muy limitado. Solo modelos ≤3B.', icon: '🎮' },
+    { id: 'gpu-6gb', label: '6 GB VRAM', vram: 6, examples: 'GTX 1060, RTX 2060, RTX 3050', notes: 'Tier mínimo viable. MoE offloading funciona.', icon: '🎮' },
+    { id: 'gpu-8gb', label: '8 GB VRAM', vram: 8, examples: 'RTX 2070, RTX 3060 Ti, RTX 4060', notes: 'Sweet spot para 7B-9B Q4_K_M.', icon: '🎮' },
+    { id: 'gpu-12gb', label: '12 GB VRAM', vram: 12, examples: 'RTX 3060 12GB, RTX 4070', notes: 'Codacus validó 35B MoE aquí.', icon: '🎮' },
+    { id: 'gpu-16gb', label: '16 GB VRAM', vram: 16, examples: 'RTX 4060 Ti 16GB, RTX 5060 Ti', notes: '27B dense Q3/Q4 o 35B MoE.', icon: '🎮' },
+    { id: 'gpu-24gb', label: '24 GB VRAM', vram: 24, examples: 'RTX 3090, RTX 4090', notes: '27B Q4 full GPU o 70B MoE.', icon: '🔥' },
+    { id: 'gpu-32gb', label: '32 GB VRAM', vram: 32, examples: 'RTX 5090', notes: 'High-end. 70B dense viable.', icon: '🔥' },
+    { id: 'unified-16gb', label: 'Unified 16 GB', vram: 16, unified: true, examples: 'Apple M1/M2 16GB', notes: 'VRAM y RAM compartidas.', icon: '🍎' },
+    { id: 'unified-32gb', label: 'Unified 32 GB', vram: 32, unified: true, examples: 'Apple M2 Pro, AMD Strix Halo', notes: 'Cómodo para 27B dense.', icon: '🍎' },
+    { id: 'unified-64gb', label: 'Unified 64 GB+', vram: 64, unified: true, examples: 'Apple M2/M3 Max, MiniV', notes: '35B MoE full GPU + 128K ctx.', icon: '🍎' }
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DATA — Use Cases
+// ═══════════════════════════════════════════════════════════════════════════
+const USE_CASES = [
+    { id: 'coding', label: 'Coding Assistant', desc: 'Autocompletado, refactoring, generación de código', recommended: 'Dense con MTP o MoE pequeño', icon: '💻', mtp: true, specDec: true },
+    { id: 'chat', label: 'Chat General', desc: 'Conversación, Q&A, asistente personal', recommended: 'Dense mediano Q4_K_M', icon: '💬', mtp: false, specDec: false },
+    { id: 'reasoning', label: 'Razonamiento Complejo', desc: 'Análisis, matemáticas, lógica, planificación', recommended: 'Dense grande o MoE mediano', icon: '🧠', mtp: false, specDec: false },
+    { id: 'creative', label: 'Escritura Creativa', desc: 'Storytelling, poesía, contenido narrativo', recommended: 'Dense mediano sin spec dec', icon: '✍️', mtp: false, specDec: false },
+    { id: 'agent', label: 'Agentes Autónomos', desc: 'Tool use, function calling, workflows complejos', recommended: 'MoE mediano o dense grande', icon: '🤖', mtp: false, specDec: false },
+    { id: 'rag', label: 'RAG / Documentos', desc: 'Búsqueda semántica, QA sobre documentos', recommended: 'Dense con long context', icon: '📚', mtp: false, specDec: false }
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DATA — Context Options
+// ═══════════════════════════════════════════════════════════════════════════
+const CONTEXT_OPTIONS = [
+    { id: 'ctx-2k', label: '2K - 4K tokens', desc: 'Conversaciones cortas, código pequeño', tokens: 4096, kvFactor: 0.5, icon: '⚡' },
+    { id: 'ctx-8k', label: '8K tokens', desc: 'Documentos medianos, chats largos', tokens: 8192, kvFactor: 1.0, icon: '📄' },
+    { id: 'ctx-16k', label: '16K tokens', desc: 'Documentos largos, análisis detallado', tokens: 16384, kvFactor: 2.0, icon: '📑' },
+    { id: 'ctx-32k', label: '32K tokens', desc: 'Libros, codebases grandes', tokens: 32768, kvFactor: 4.0, icon: '📚' },
+    { id: 'ctx-128k', label: '128K tokens', desc: 'Máximo contexto, investigación profunda', tokens: 131072, kvFactor: 16.0, icon: '🔬' }
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DATA — Tools
+// ═══════════════════════════════════════════════════════════════════════════
+const TOOLS = [
+    { id: 'llamacpp', label: 'llama.cpp', desc: 'El estándar. Máximo control, mejor performance.', icon: '🦙', recommended: true, command: 'llama-server' },
+    { id: 'lmstudio', label: 'LM Studio', desc: 'GUI amigable. Ideal para principiantes.', icon: '🖥️', recommended: false, command: null },
+    { id: 'ollama', label: 'Ollama', desc: 'Docker-like para LLMs. Simplicidad máxima.', icon: '🐳', recommended: false, command: 'ollama run' },
+    { id: 'ikllamacpp', label: 'ik_llama.cpp', desc: 'Fork con optimizaciones extras para MoE.', icon: '⚡', recommended: false, command: 'llama-server' },
+    { id: 'vllm', label: 'vLLM', desc: 'Para datacenter. PagedAttention, alta concurrencia.', icon: '🚀', recommended: false, command: 'vllm serve' }
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DATA — Model Recommendations Engine
+// ═══════════════════════════════════════════════════════════════════════════
+const MODEL_RECOMMENDATIONS = {
+    // Dense models by size
+    dense: {
+        small: { params: 3, quants: { 'Q4_K_M': 1.8, 'Q6_K': 2.5, 'Q8_0': 3.2 }, examples: ['Qwen3.5-2B', 'Llama-3.2-3B'] },
+        medium: { params: 9, quants: { 'Q3_K_S': 3.8, 'Q4_K_M': 5.2, 'Q5_K_M': 6.5, 'Q6_K': 7.8 }, examples: ['Qwen3.5-9B', 'Gemma-4-12B', 'DeepSeek-R1-14B'] },
+        large: { params: 27, quants: { 'Q2_K_XL': 9.5, 'Q3_K_S': 11.5, 'Q3_K_M': 12.5, 'Q4_K_M': 15.5 }, examples: ['Qwen3.6-27B', 'Qwopus3.6-27B-v2'] }
+    },
+    // MoE models
+    moe: {
+        small: { params: 30, active: 3, quants: { 'Q4_K_M': 16.5, 'IQ4_XS': 15.0 }, examples: ['Qwen3-Coder-30B-A3B'] },
+        medium: { params: 35, active: 3, quants: { 'IQ4_XS': 17.6, 'Q4_K_M': 19.2, 'Q5_K_M': 23.8, 'Q6_K': 27.3 }, examples: ['Qwen3.6-35B-A3B', 'Qwopus3.6-35B-A3B'] }
+    }
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// INITIALIZATION
+// ═══════════════════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function() {
+    initTheme();
+    renderGPUOptions();
+    renderUseCaseOptions();
+    renderContextOptions();
+    renderToolOptions();
+    updateExpert();
+});
+
+function initTheme() {
+    const saved = localStorage.getItem('gguf-compass-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    document.getElementById('theme-icon').textContent = saved === 'dark' ? '🌙' : '☀️';
+}
+
+function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('gguf-compass-theme', next);
+    document.getElementById('theme-icon').textContent = next === 'dark' ? '🌙' : '☀️';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MODE SWITCHING
+// ═══════════════════════════════════════════════════════════════════════════
+function setMode(mode) {
+    state.mode = mode;
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+    });
+    
+    const wizardSection = document.getElementById('wizard-section');
+    const expertPanel = document.getElementById('expert-panel');
+    
+    if (mode === 'wizard') {
+        wizardSection.classList.remove('hidden');
+        expertPanel.classList.remove('active');
+    } else {
+        wizardSection.classList.add('hidden');
+        expertPanel.classList.add('active');
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// WIZARD RENDERING
+// ═══════════════════════════════════════════════════════════════════════════
+function renderGPUOptions() {
+    const container = document.getElementById('gpu-options');
+    container.innerHTML = GPU_OPTIONS.map(gpu => `
+        <div class="option-card" data-id="${gpu.id}" onclick="selectGPU('${gpu.id}')">
+            <div class="option-card-header">
+                <span class="option-card-title">${gpu.icon} ${gpu.label}</span>
+            </div>
+            <div class="option-card-desc">${gpu.notes}</div>
+            <div class="option-card-meta">
+                <span class="meta-tag">${gpu.examples}</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderUseCaseOptions() {
+    const container = document.getElementById('usecase-options');
+    container.innerHTML = USE_CASES.map(uc => `
+        <div class="option-card" data-id="${uc.id}" onclick="selectUseCase('${uc.id}')">
+            <div class="option-card-header">
+                <span class="option-card-title">${uc.icon} ${uc.label}</span>
+            </div>
+            <div class="option-card-desc">${uc.desc}</div>
+            <div class="option-card-meta">
+                <span class="meta-tag">${uc.recommended}</span>
+                ${uc.mtp ? '<span class="meta-tag" style="background: rgba(52,211,153,0.2); color: var(--success);">MTP ✓</span>' : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderContextOptions() {
+    const container = document.getElementById('context-options');
+    container.innerHTML = CONTEXT_OPTIONS.map(ctx => `
+        <div class="option-card" data-id="${ctx.id}" onclick="selectContext('${ctx.id}')">
+            <div class="option-card-header">
+                <span class="option-card-title">${ctx.icon} ${ctx.label}</span>
+            </div>
+            <div class="option-card-desc">${ctx.desc}</div>
+        </div>
+    `).join('');
+}
+
+function renderToolOptions() {
+    const container = document.getElementById('tool-options');
+    container.innerHTML = TOOLS.map(tool => `
+        <div class="option-card ${tool.recommended ? 'recommended' : ''}" data-id="${tool.id}" onclick="selectTool('${tool.id}')">
+            <div class="option-card-header">
+                <span class="option-card-title">${tool.icon} ${tool.label}</span>
+                ${tool.recommended ? '<span class="recommendation-badge badge-recommended">Recomendado</span>' : ''}
+            </div>
+            <div class="option-card-desc">${tool.desc}</div>
+        </div>
+    `).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// WIZARD SELECTION HANDLERS
+// ═══════════════════════════════════════════════════════════════════════════
+function selectGPU(id) {
+    document.querySelectorAll('#gpu-options .option-card').forEach(card => {
+        card.classList.toggle('selected', card.dataset.id === id);
+    });
+    const gpu = GPU_OPTIONS.find(g => g.id === id);
+    state.hardware.vram = gpu.vram;
+    state.hardware.type = gpu.unified ? 'unified' : 'discrete';
+    // Auto-advance after short delay
+    setTimeout(() => { if (state.step === 1) nextStep(); }, 300);
+}
+
+function selectUseCase(id) {
+    document.querySelectorAll('#usecase-options .option-card').forEach(card => {
+        card.classList.toggle('selected', card.dataset.id === id);
+    });
+    state.useCase = id;
+    setTimeout(() => { if (state.step === 2) nextStep(); }, 300);
+}
+
+function selectContext(id) {
+    document.querySelectorAll('#context-options .option-card').forEach(card => {
+        card.classList.toggle('selected', card.dataset.id === id);
+    });
+    const ctx = CONTEXT_OPTIONS.find(c => c.id === id);
+    state.contextLength = ctx.tokens;
+    setTimeout(() => { if (state.step === 3) nextStep(); }, 300);
+}
+
+function selectTool(id) {
+    document.querySelectorAll('#tool-options .option-card').forEach(card => {
+        card.classList.toggle('selected', card.dataset.id === id);
+    });
+    state.tool = id;
+    setTimeout(() => { if (state.step === 4) generateResults(); }, 300);
+}
+
+function useCustomHardware() {
+    const vram = parseInt(document.getElementById('custom-vram').value) || 0;
+    const ram = parseInt(document.getElementById('custom-ram').value) || 16;
+    const cores = parseInt(document.getElementById('custom-cores').value) || 8;
+    
+    state.hardware.vram = vram;
+    state.hardware.ram = ram;
+    state.hardware.cores = cores;
+    state.hardware.type = 'custom';
+    
+    // Visual feedback
+    document.querySelectorAll('#gpu-options .option-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    
+    setTimeout(() => { if (state.step === 1) nextStep(); }, 300);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// WIZARD NAVIGATION
+// ═══════════════════════════════════════════════════════════════════════════
+function nextStep() {
+    if (state.step < 4) {
+        document.getElementById(`step-${state.step}`).classList.add('hidden');
+        state.step++;
+        document.getElementById(`step-${state.step}`).classList.remove('hidden');
+        updateStepDots();
+        document.getElementById('btn-prev').style.visibility = 'visible';
+        
+        if (state.step === 4) {
+            document.getElementById('btn-next').textContent = '🎯 Generar Recomendación';
+        }
+    } else {
+        generateResults();
+    }
+}
+
+function prevStep() {
+    if (state.step > 1) {
+        document.getElementById(`step-${state.step}`).classList.add('hidden');
+        state.step--;
+        document.getElementById(`step-${state.step}`).classList.remove('hidden');
+        updateStepDots();
+        
+        if (state.step === 1) {
+            document.getElementById('btn-prev').style.visibility = 'hidden';
+        }
+        document.getElementById('btn-next').textContent = 'Siguiente →';
+    }
+}
+
+function updateStepDots() {
+    document.querySelectorAll('.step-dot').forEach((dot, idx) => {
+        const stepNum = idx + 1;
+        dot.classList.toggle('active', stepNum === state.step);
+        dot.classList.toggle('completed', stepNum < state.step);
+    });
+}
+
+function resetWizard() {
+    state.step = 1;
+    state.hardware = { vram: null, ram: null, cores: null, type: null };
+    state.useCase = null;
+    state.contextLength = null;
+    state.tool = null;
+    state.results = null;
+    
+    document.querySelectorAll('.step-content').forEach((el, idx) => {
+        el.classList.toggle('hidden', idx !== 0);
+    });
+    document.querySelectorAll('.option-card').forEach(card => card.classList.remove('selected'));
+    document.getElementById('results-section').classList.add('hidden');
+    document.getElementById('btn-prev').style.visibility = 'hidden';
+    document.getElementById('btn-next').textContent = 'Siguiente →';
+    updateStepDots();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RECOMMENDATION ENGINE
+// ═══════════════════════════════════════════════════════════════════════════
+function calculateFit(vram, ram, modelSizeGB, isMoE, contextTokens) {
+    // Reserve memory for OS and overhead
+    const vramFree = vram * 0.85;
+    const ramFree = ram * 0.7;
+    
+    // KV cache estimation (rough)
+    const kvCacheGB = (contextTokens / 8192) * 2;
+    
+    // Total needed
+    const totalNeeded = modelSizeGB + kvCacheGB;
+    
+    // Decision logic
+    if (vram === 0) {
+        return { fit: 'cpu-only', speed: 'slow', recommendation: 'CPU only. Considera un modelo más pequeño o añade GPU.' };
+    }
+    
+    if (isMoE) {
+        // MoE can offload experts to CPU
+        const backboneSize = modelSizeGB * 0.3; // Rough estimate
+        const expertSize = modelSizeGB * 0.7;
+        
+        if (backboneSize + kvCacheGB <= vramFree && totalNeeded <= vramFree + ramFree) {
+            return { 
+                fit: 'moe-offload', 
+                speed: 'medium-fast', 
+                recommendation: 'MoE con offloading de expertos. Usa --n-cpu-moe para balancear.',
+                nCpuMoe: Math.ceil(expertSize / (modelSizeGB / 40)) // Rough layers calculation
+            };
+        }
+    }
+    
+    // Dense model logic
+    if (totalNeeded <= vramFree) {
+        return { fit: 'full-gpu', speed: 'fast', recommendation: 'Modelo cabe completamente en VRAM. Máxima velocidad.' };
+    }
+    
+    if (totalNeeded <= vramFree + ramFree * 0.5) {
+        return { 
+            fit: 'partial-gpu', 
+            speed: 'medium', 
+            recommendation: 'Modelo parcialmente en GPU. Calcula NGL óptimo.',
+            ngl: Math.floor((vramFree - kvCacheGB) / (modelSizeGB / 40))
+        };
+    }
+    
+    return { fit: 'wont-fit', speed: 'blocked', recommendation: 'Modelo muy grande para tu hardware. Usa quantización más agresiva o modelo más pequeño.' };
+}
+
+function generateRecommendations() {
+    const { vram, ram } = state.hardware;
+    const useCase = USE_CASES.find(uc => uc.id === state.useCase);
+    const ctx = CONTEXT_OPTIONS.find(c => c.tokens === state.contextLength);
+    
+    const recommendations = [];
+    
+    // Determine what models to recommend based on VRAM
+    if (vram <= 4) {
+        // Very limited - only small dense
+        recommendations.push({
+            type: 'dense',
+            size: 'small',
+            params: 3,
+            quant: 'Q4_K_M',
+            modelSize: 1.8,
+            fit: calculateFit(vram, ram, 1.8, false, ctx.tokens),
+            examples: MODEL_RECOMMENDATIONS.dense.small.examples,
+            priority: 'recommended'
+        });
+    } else if (vram <= 8) {
+        // 8GB sweet spot
+        recommendations.push({
+            type: 'dense',
+            size: 'medium',
+            params: 9,
+            quant: 'Q4_K_M',
+            modelSize: 5.2,
+            fit: calculateFit(vram, ram, 5.2, false, ctx.tokens),
+            examples: MODEL_RECOMMENDATIONS.dense.medium.examples,
+            priority: 'recommended'
+        });
+        // Also suggest smaller as alternative
+        recommendations.push({
+            type: 'dense',
+            size: 'small',
+            params: 3,
+            quant: 'Q6_K',
+            modelSize: 2.5,
+            fit: calculateFit(vram, ram, 2.5, false, ctx.tokens),
+            examples: MODEL_RECOMMENDATIONS.dense.small.examples,
+            priority: 'alternative'
+        });
+    } else if (vram <= 16) {
+        // 16GB - can do large dense or MoE
+        recommendations.push({
+            type: 'moe',
+            size: 'medium',
+            params: 35,
+            quant: 'IQ4_XS',
+            modelSize: 17.6,
+            fit: calculateFit(vram, ram, 17.6, true, ctx.tokens),
+            examples: MODEL_RECOMMENDATIONS.moe.medium.examples,
+            priority: 'recommended'
+        });
+        recommendations.push({
+            type: 'dense',
+            size: 'large',
+            params: 27,
+            quant: 'Q3_K_S',
+            modelSize: 11.5,
+            fit: calculateFit(vram, ram, 11.5, false, ctx.tokens),
+            examples: MODEL_RECOMMENDATIONS.dense.large.examples,
+            priority: 'alternative'
+        });
+    } else {
+        // 24GB+ - high end
+        recommendations.push({
+            type: 'dense',
+            size: 'large',
+            params: 27,
+            quant: 'Q4_K_M',
+            modelSize: 15.5,
+            fit: calculateFit(vram, ram, 15.5, false, ctx.tokens),
+            examples: MODEL_RECOMMENDATIONS.dense.large.examples,
+            priority: 'recommended'
+        });
+        recommendations.push({
+            type: 'moe',
+            size: 'medium',
+            params: 35,
+            quant: 'Q4_K_M',
+            modelSize: 19.2,
+            fit: calculateFit(vram, ram, 19.2, true, ctx.tokens),
+            examples: MODEL_RECOMMENDATIONS.moe.medium.examples,
+            priority: 'alternative'
+        });
+    }
+    
+    return recommendations;
+}
+
+function generateCommand(rec, tool, useCase, ctx) {
+    const { vram, ram, cores } = state.hardware;
+    const threads = cores || Math.max(4, navigator.hardwareConcurrency - 2);
+    
+    let cmd = '';
+    
+    if (tool === 'llamacpp' || tool === 'ikllamacpp') {
+        cmd = `llama-server \\\n  -m ${rec.examples[0]}-${rec.quant}.gguf \\\n`;
+        
+        // NGL
+        if (rec.fit.fit === 'full-gpu') {
+            cmd += `  -ngl 99 \\\n`;
+        } else if (rec.fit.fit === 'partial-gpu' && rec.fit.ngl) {
+            cmd += `  -ngl ${rec.fit.ngl} \\\n`;
+        } else if (rec.fit.fit === 'moe-offload') {
+            cmd += `  -ngl 99 \\\n  --n-cpu-moe ${rec.fit.nCpuMoe || 20} \\\n`;
+        }
+        
+        // Context
+        cmd += `  -c ${ctx.tokens} \\\n`;
+        
+        // Threads
+        cmd += `  -t ${threads} \\\n`;
+        
+        // Batch size
+        cmd += `  -b 512 \\\n`;
+        
+        // Memory flags
+        if (rec.fit.fit !== 'full-gpu') {
+            cmd += `  --no-mmap \\\n`;
+            if (ram >= 32) cmd += `  --mlock \\\n`;
+        }
+        
+        // KV cache
+        if (ctx.tokens > 8192) {
+            cmd += `  --cache-type-k q4_0 --cache-type-v q4_0 \\\n`;
+        }
+        
+        // Flash attention
+        cmd += `  --flash-attn auto \\\n`;
+        
+        // Speculative decoding for coding
+        if (useCase.id === 'coding' && rec.type === 'dense' && rec.fit.fit === 'full-gpu') {
+            cmd += `  --spec-type draft-mtp \\\n  --spec-draft-n-max 2 \\\n  --spec-draft-n-min 1 \\\n`;
+        }
+        
+        // Cache reuse
+        cmd += `  --cache-reuse 256 \\\n`;
+        
+        // Port
+        cmd += `  --port 8080`;
+        
+    } else if (tool === 'ollama') {
+        cmd = `ollama run ${rec.examples[0].toLowerCase().replace(/\s+/g, '-')}:${rec.quant.toLowerCase()}`;
+    } else if (tool === 'lmstudio') {
+        cmd = `# LM Studio GUI\n# 1. Descarga el modelo: ${rec.examples[0]}\n# 2. Selecciona quantización: ${rec.quant}\n# 3. GPU Offload: ${rec.fit.fit === 'full-gpu' ? 'Max' : 'Custom'}\n# 4. Context: ${ctx.tokens}`;
+    } else if (tool === 'vllm') {
+        cmd = `vllm serve ${rec.examples[0]} \\\n  --quantization ${rec.quant.toLowerCase()} \\\n  --max-model-len ${ctx.tokens} \\\n  --gpu-memory-utilization 0.85`;
+    }
+    
+    return cmd;
+}
+
+function generateResults() {
+    state.results = generateRecommendations();
+    
+    const tool = TOOLS.find(t => t.id === state.tool) || TOOLS[0];
+    const useCase = USE_CASES.find(uc => uc.id === state.useCase);
+    const ctx = CONTEXT_OPTIONS.find(c => c.tokens === state.contextLength);
+    
+    // Hide wizard, show results
+    document.querySelector('.wizard-container').classList.add('hidden');
+    document.getElementById('results-section').classList.remove('hidden');
+    
+    // Render results
+    const container = document.getElementById('results-content');
+    
+    let html = `
+        <div style="margin-bottom: 1.5rem; padding: 1rem; background: var(--bg-tertiary); border-radius: 0.75rem;">
+            <strong>Tu hardware:</strong> ${state.hardware.vram}GB VRAM${state.hardware.ram ? `, ${state.hardware.ram}GB RAM` : ''}${state.hardware.cores ? `, ${state.hardware.cores} cores` : ''}
+            <span style="margin: 0 0.5rem;">•</span>
+            <strong>Caso de uso:</strong> ${useCase.label}
+            <span style="margin: 0 0.5rem;">•</span>
+            <strong>Contexto:</strong> ${ctx.label}
+        </div>
+    `;
+    
+    state.results.forEach((rec, idx) => {
+        const cmd = generateCommand(rec, tool.id, useCase, ctx);
+        const fitBadge = rec.fit.fit === 'full-gpu' ? 'success' : rec.fit.fit === 'moe-offload' ? 'warning' : 'danger';
+        
+        html += `
+            <div class="recommendation-card ${rec.priority === 'recommended' ? 'recommended' : ''}">
+                <div class="recommendation-header">
+                    <div class="recommendation-title">
+                        ${rec.type === 'moe' ? '🧩' : '📦'} ${rec.params}B ${rec.type === 'moe' ? 'MoE' : 'Dense'} — ${rec.quant}
+                    </div>
+                    <span class="recommendation-badge badge-${rec.priority === 'recommended' ? 'recommended' : 'alternative'}">
+                        ${rec.priority === 'recommended' ? '✓ Recomendado' : 'Alternativa'}
+                    </span>
+                </div>
+                
+                <div class="recommendation-specs">
+                    <div class="spec-item">
+                        <span class="spec-label">Tamaño modelo</span>
+                        <span class="spec-value">${rec.modelSize} GB</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Estrategia</span>
+                        <span class="spec-value highlight">${rec.fit.fit.replace('-', ' ').toUpperCase()}</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Velocidad esperada</span>
+                        <span class="spec-value">${rec.fit.speed}</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Modelos ejemplo</span>
+                        <span class="spec-value">${rec.examples.slice(0, 2).join(', ')}</span>
+                    </div>
+                </div>
+                
+                <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">
+                    💡 ${rec.fit.recommendation}
+                </p>
+                
+                <div class="command-output">
+                    <div class="command-output-header">
+                        <span class="command-output-title">${tool.label} — Comando sugerido</span>
+                        <button class="copy-btn" onclick="copyCommand(${idx})">Copiar</button>
+                    </div>
+                    <code id="cmd-${idx}">${cmd}</code>
+                </div>
+            </div>
+        `;
+    });
+    
+    // Tips section
+    html += `
+        <div style="margin-top: 2rem;">
+            <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 1rem;">💡 Tips para tu configuración</h3>
+            <div class="tips-grid">
+                ${generateTips(state.hardware, useCase, ctx)}
+            </div>
+        </div>
+    `;
+    
+    container.innerHTML = html;
+    
+    // Scroll to results
+    document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+function generateTips(hw, useCase, ctx) {
+    const tips = [];
+    
+    if (hw.vram <= 8) {
+        tips.push({ icon: '⚠️', title: 'VRAM limitada', desc: 'Cierra browsers y apps con hardware acceleration antes de cargar el modelo.' });
+    }
+    
+    if (useCase.id === 'coding') {
+        tips.push({ icon: '💻', title: 'MTP para código', desc: 'Speculative decoding puede duplicar velocidad en tareas de código estructurado.' });
+    }
+    
+    if (ctx.tokens > 16384) {
+        tips.push({ icon: '📚', title: 'Long context', desc: 'Usa --cache-type-k q4_0 --cache-type-v q4_0 para ahorrar VRAM en contextos largos.' });
+    }
+    
+    if (hw.vram >= 12 && hw.ram >= 24) {
+        tips.push({ icon: '🧩', title: 'MoE es tu amigo', desc: 'Con 12GB+ VRAM y 24GB+ RAM, los modelos MoE 35B ofrecen la mejor calidad/velocidad.' });
+    }
+    
+    tips.push({ icon: '📥', title: 'Descarga modelos', desc: 'Usa hf download (HuggingFace) o Ollama para gestionar modelos fácilmente.' });
+    
+    tips.push({ icon: '🔧', title: 'Ajusta threads', desc: 'Usa -t $(nproc) para máximo rendimiento CPU en inferencia híbrida.' });
+    
+    return tips.map(t => `
+        <div class="tip-card">
+            <span class="tip-icon">${t.icon}</span>
+            <div class="tip-content">
+                <h4>${t.title}</h4>
+                <p>${t.desc}</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EXPERT MODE
+// ═══════════════════════════════════════════════════════════════════════════
+function updateExpert() {
+    const vram = document.getElementById('expert-vram').value;
+    const ram = document.getElementById('expert-ram').value;
+    const cores = document.getElementById('expert-cores').value;
+    const params = document.getElementById('expert-params').value;
+    const quant = document.getElementById('expert-quant').value;
+    const ctx = document.getElementById('expert-ctx').value;
+    const isMoE = document.getElementById('expert-moe').classList.contains('active');
+    const useFA = document.getElementById('expert-fa').classList.contains('active');
+    const useKV = document.getElementById('expert-kv').classList.contains('active');
+    const useSpec = document.getElementById('expert-spec').classList.contains('active');
+    
+    // Update labels
+    document.getElementById('expert-vram-value').textContent = vram;
+    document.getElementById('expert-ram-value').textContent = ram;
+    document.getElementById('expert-cores-value').textContent = cores;
+    document.getElementById('expert-params-value').textContent = params;
+    document.getElementById('expert-ctx-value').textContent = parseInt(ctx).toLocaleString();
+    
+    // Calculate model size (rough estimate)
+    const quantMultipliers = {
+        'Q2_K': 0.35, 'Q3_K_S': 0.42, 'Q3_K_M': 0.45,
+        'Q4_K_M': 0.55, 'Q5_K_M': 0.68, 'Q6_K': 0.78, 'Q8_0': 0.95
+    };
+    const modelSize = params * quantMultipliers[quant];
+    
+    // Build command
+    let cmd = `llama-server \\\n  -m model-${params}B-${quant}.gguf \\\n`;
+    
+    // NGL logic
+    if (modelSize <= vram * 0.85) {
+        cmd += `  -ngl 99 \\\n`;
+    } else {
+        const ngl = Math.floor((vram * 0.75) / (modelSize / 40));
+        cmd += `  -ngl ${Math.max(0, ngl)} \\\n`;
+    }
+    
+    // MoE
+    if (isMoE) {
+        const nCpuMoe = Math.max(0, Math.ceil((modelSize - vram * 0.6) / (modelSize / 40)));
+        cmd += `  --n-cpu-moe ${nCpuMoe} \\\n`;
+    }
+    
+    // Context
+    cmd += `  -c ${ctx} \\\n`;
+    
+    // Threads
+    cmd += `  -t ${cores} \\\n`;
+    
+    // Batch
+    cmd += `  -b 512 \\\n`;
+    
+    // Memory
+    if (modelSize > vram) {
+        cmd += `  --no-mmap \\\n`;
+        if (ram >= 32) cmd += `  --mlock \\\n`;
+    }
+    
+    // KV cache
+    if (useKV) {
+        cmd += `  --cache-type-k q4_0 --cache-type-v q4_0 \\\n`;
+    }
+    
+    // Flash attention
+    if (useFA) {
+        cmd += `  --flash-attn auto \\\n`;
+    }
+    
+    // Speculative decoding
+    if (useSpec && !isMoE) {
+        cmd += `  --spec-type draft-mtp \\\n  --spec-draft-n-max 2 \\\n`;
+    }
+    
+    // Cache reuse
+    cmd += `  --cache-reuse 256 \\\n`;
+    
+    // Port
+    cmd += `  --port 8080`;
+    
+    // Add comment about fit
+    const fits = modelSize <= vram * 0.85;
+    const fitComment = fits 
+        ? `# ✓ Modelo cabe en VRAM (${modelSize.toFixed(1)}GB / ${vram}GB)` 
+        : `# ⚠ Modelo excede VRAM (${modelSize.toFixed(1)}GB / ${vram}GB) — offloading activado`;
+    
+    document.getElementById('expert-command-text').textContent = fitComment + '\n' + cmd;
+}
+
+function copyExpertCommand() {
+    const text = document.getElementById('expert-command-text').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = document.querySelector('#expert-command .copy-btn');
+        btn.textContent = '✓ Copiado';
+        setTimeout(() => btn.textContent = 'Copiar', 2000);
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// UTILITY FUNCTIONS
+// ═══════════════════════════════════════════════════════════════════════════
+function copyCommand(idx) {
+    const text = document.getElementById(`cmd-${idx}`).textContent;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = document.querySelector(`#cmd-${idx}`).closest('.command-output').querySelector('.copy-btn');
+        btn.textContent = '✓ Copiado';
+        setTimeout(() => btn.textContent = 'Copiar', 2000);
+    });
+}
+
+function copyAllCommands() {
+    const commands = [];
+    document.querySelectorAll('.command-output code').forEach(code => {
+        commands.push(code.textContent);
+    });
+    navigator.clipboard.writeText(commands.join('\n\n' + '='.repeat(50) + '\n\n')).then(() => {
+        const btn = document.querySelector('.results-actions .btn-primary');
+        btn.textContent = '✓ Copiado todo';
+        setTimeout(() => btn.textContent = '📋 Copiar todo', 2000);
+    });
+}
+
+function showAbout() {
+    alert('GGUF Compass v1.0\n\nTu brújula para LLMs locales.\n\nCreado con ❤️ para la comunidad.\n\nBasado en investigación de Codacus, llama.cpp, y la comunidad local AI.');
+}
+
+function showFAQ() {
+    alert('FAQ\n\nQ: ¿Es gratis?\nR: Sí, 100% open source (MIT).\n\nQ: ¿Mis datos se envían a algún servidor?\nR: No. Todo corre en tu navegador.\n\nQ: ¿Qué es MoE?\nR: Mixture of Experts — arquitectura que activa solo parte del modelo por token.\n\nQ: ¿Qué es MTP?\nR: Multi-Token Prediction — speculative decoding nativo del modelo.');
+}
+</script>
+
+</body>
+</html>

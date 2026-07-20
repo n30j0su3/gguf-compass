@@ -1,0 +1,136 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-07-20",
+  "fit_rules": [
+    {
+      "id": "dense-fit-gpu",
+      "description": "Dense model cabe completamente en VRAM",
+      "condition": "model_size_gb <= vram_free_gb * 0.85",
+      "result": {
+        "strategy": "full-gpu",
+        "ngl": 99,
+        "n_cpu_moe": 0,
+        "expected_speed": "fast",
+        "notes": "Mejor caso. Máxima velocidad."
+      }
+    },
+    {
+      "id": "dense-partial-gpu",
+      "description": "Dense model parcialmente en GPU",
+      "condition": "model_size_gb > vram_free_gb * 0.85 && model_size_gb <= (vram_free_gb + ram_free_gb) * 0.6",
+      "result": {
+        "strategy": "partial-gpu",
+        "ngl_formula": "floor(layers * vram_free_gb * 0.75 / model_size_gb)",
+        "n_cpu_moe": 0,
+        "expected_speed": "medium",
+        "notes": "Capas en GPU + resto en CPU. Calcular NGL dinámicamente."
+      }
+    },
+    {
+      "id": "moe-fit-gpu-small-active",
+      "description": "MoE cabe en GPU con pocos expertos activos",
+      "condition": "architecture == 'moe' && active_params_size_gb <= vram_free_gb * 0.5",
+      "result": {
+        "strategy": "moe-full-gpu",
+        "ngl": 99,
+        "n_cpu_moe": 0,
+        "expected_speed": "very-fast",
+        "notes": "Solo active params computan = muy rápido. Qwen3-Coder-30B-A3B case."
+      }
+    },
+    {
+      "id": "moe-offloading",
+      "description": "MoE con expertos offloaded a CPU (n-cpu-moe)",
+      "condition": "architecture == 'moe' && model_size_gb > vram_free_gb && model_size_gb <= (vram_free_gb + ram_free_gb) * 0.5",
+      "result": {
+        "strategy": "moe-cpu-offload",
+        "ngl": 99,
+        "n_cpu_moe_formula": "ceil((model_size_gb - vram_free_gb * 0.6) / layer_size_gb)",
+        "expected_speed": "medium-fast",
+        "notes": "Caso Codacus GTX 1060: 35B MoE en 6GB VRAM + 24GB RAM = 17 tok/s."
+      }
+    },
+    {
+      "id": "cpu-only",
+      "description": "Sin GPU o modelo muy pequeño",
+      "condition": "vram_gb == 0 || model_size_gb <= 2",
+      "result": {
+        "strategy": "cpu-only",
+        "ngl": 0,
+        "n_cpu_moe": 0,
+        "expected_speed": "slow",
+        "notes": "Funciona pero lento. Solo para testing o modelos tiny."
+      }
+    },
+    {
+      "id": "wont-fit",
+      "description": "Modelo no cabe con recursos disponibles",
+      "condition": "model_size_gb > (vram_free_gb + ram_free_gb) * 0.7",
+      "result": {
+        "strategy": "blocked",
+        "recommendation": "Usar quantización más agresiva o modelo más pequeño",
+        "expected_speed": "blocked",
+        "notes": "No forzar. OOM garantizado."
+      }
+    }
+  ],
+  "optimization_tips": [
+    {
+      "context": "short-context (< 4K)",
+      "dense": "Habilitar MTP si disponible: --spec-type draft-mtp --spec-draft-n-max 2",
+      "moe": "MTP tiene límites en MoE. ngram-mod puede ayudar en código repetitivo."
+    },
+    {
+      "context": "long-context (> 8K)",
+      "dense": "MTP no ayuda en long context. Usar KV cache quantization: --cache-type-k q4_0 --cache-type-v q4_0",
+      "moe": "TurboQuant si disponible: --cache-type-k turbo4 --cache-type-v turbo2"
+    },
+    {
+      "context": "coding",
+      "general": "Spec dec (MTP/DFlash) funciona muy bien: 53% acceptance, 3.3x speedup. ngram-mod también útil."
+    },
+    {
+      "context": "creative-writing",
+      "general": "Spec dec NO recomendado: 9% acceptance, overhead sin beneficio."
+    },
+    {
+      "context": "low-vram (<= 8GB)",
+      "general": "--no-mmap para evitar page faults. --mlock para prevenir swap. Matar procesos VRAM parasites (Ollama, ComfyUI, browsers con hardware accel)."
+    }
+  ],
+  "flag_library": {
+    "core": {
+      "-m": "Path al archivo GGUF",
+      "-ngl": "Capas a offloading a GPU (99 = todas)",
+      "-c": "Context size en tokens",
+      "-t": "Threads CPU (usar cores físicos)",
+      "-b": "Batch size (512 para throughput)",
+      "--port": "Puerto para llama-server"
+    },
+    "memory": {
+      "--no-mmap": "No usar memory mapping. Previene page faults pero usa más RAM.",
+      "--mlock": "Lock modelo en RAM. Previene swap.",
+      "--cache-reuse": "Reusar prompt cache (256 recomendado)",
+      "--cache-type-k": "Quantización KV cache K (q4_0, turbo4)",
+      "--cache-type-v": "Quantización KV cache V (q4_0, turbo2)"
+    },
+    "moe": {
+      "--n-cpu-moe": "Capas MoE a CPU. Crítico para MoE grande en poca VRAM.",
+      "--override-tensor": "Override específico de tensor placement (avanzado)"
+    },
+    "speculative": {
+      "--spec-type": "Tipo de spec dec: draft-mtp, ngram-mod, dflash",
+      "--spec-draft-n-max": "Max tokens draft (2-3 recomendado)",
+      "--spec-draft-n-min": "Min tokens draft (1)",
+      "-md": "Path al draft model para spec dec clásico"
+    },
+    "advanced": {
+      "--flash-attn": "Flash Attention (on/auto). Recomendado.",
+      "--jinja": "Usar Jinja chat templates",
+      "--ubatch": "Micro-batch size (solo builds self-compiled)",
+      "--parallel": "Slots paralelos (1 para MoE grande)",
+      "--reasoning": "on/off para thinking models",
+      "--reasoning-budget": "Tokens para reasoning (0 para skip)"
+    }
+  }
+}

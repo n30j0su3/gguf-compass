@@ -1,0 +1,97 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-07-20",
+  "families": [
+    {
+      "id": "dense-small",
+      "label": "Dense Pequeño (1B-4B)",
+      "examples": ["Qwen3.5-2B", "Llama-3.2-3B", "Gemma-3-4B"],
+      "architecture": "dense",
+      "param_range": [1, 4],
+      "typical_quants": {
+        "Q4_K_M": { "size_multiplier": 0.55, "quality": "good" },
+        "Q6_K": { "size_multiplier": 0.78, "quality": "very-good" },
+        "Q8_0": { "size_multiplier": 0.95, "quality": "excellent" }
+      },
+      "use_cases": ["chat rápido", "draft model para spec dec", "autocomplete"],
+      "mtp_support": "algunos (Qwen3.5-2B-MTP)"
+    },
+    {
+      "id": "dense-medium",
+      "label": "Dense Mediano (7B-14B)",
+      "examples": ["Qwen3.5-9B", "DeepSeek-R1-14B", "Gemma-4-12B", "Mistral-7B"],
+      "architecture": "dense",
+      "param_range": [7, 14],
+      "typical_quants": {
+        "Q3_K_S": { "size_multiplier": 0.42, "quality": "acceptable" },
+        "Q4_K_M": { "size_multiplier": 0.55, "quality": "good (default)" },
+        "Q5_K_M": { "size_multiplier": 0.68, "quality": "very-good" },
+        "Q6_K": { "size_multiplier": 0.78, "quality": "excellent" }
+      },
+      "use_cases": ["coding assistant", "chat general", "razonamiento"],
+      "mtp_support": "sí (Qwen3.5-9B-MTP, Gemma-4-12B-MTP, Qwopus3.5-9B-Coder-MTP)"
+    },
+    {
+      "id": "dense-large",
+      "label": "Dense Grande (20B-32B)",
+      "examples": ["Qwen3.6-27B", "Qwopus3.6-27B-v2", "GPT-OSS-20B"],
+      "architecture": "dense",
+      "param_range": [20, 32],
+      "typical_quants": {
+        "Q2_K_XL": { "size_multiplier": 0.35, "quality": "baja pero usable" },
+        "Q3_K_S": { "size_multiplier": 0.42, "quality": "acceptable" },
+        "Q3_K_M": { "size_multiplier": 0.45, "quality": "good" },
+        "Q4_K_M": { "size_multiplier": 0.55, "quality": "very-good" }
+      },
+      "use_cases": ["coding avanzado", "razonamiento profundo", "agentes complejos"],
+      "mtp_support": "sí (Qwen3.6-27B-MTP, Qwopus3.6-27B-v2-MTP)"
+    },
+    {
+      "id": "moe-small",
+      "label": "MoE Pequeño (10B-30B total)",
+      "examples": ["Qwen3-Coder-30B-A3B", "GPT-OSS-20B"],
+      "architecture": "moe",
+      "param_range": [10, 30],
+      "active_params_b": 3,
+      "typical_quants": {
+        "Q4_K_M": { "size_multiplier": 0.55, "quality": "good" },
+        "IQ4_XS": { "size_multiplier": 0.50, "quality": "very-good (imatrix)" }
+      },
+      "use_cases": ["coding", "alta velocidad con pocos active params"],
+      "mtp_support": "no (spec dec no funciona bien en MoE)",
+      "notes": "Solo ~3B activos por token = velocidad de modelo pequeño con calidad de grande."
+    },
+    {
+      "id": "moe-medium",
+      "label": "MoE Mediano (30B-50B total)",
+      "examples": ["Qwen3.6-35B-A3B", "Qwopus3.6-35B-A3B", "Qwen3.5-35B-A3B"],
+      "architecture": "moe",
+      "param_range": [30, 50],
+      "active_params_b": 3,
+      "typical_quants": {
+        "IQ4_XS": { "size_multiplier": 0.50, "quality": "very-good (recomendado)" },
+        "Q4_K_M": { "size_multiplier": 0.55, "quality": "good" },
+        "Q5_K_M": { "size_multiplier": 0.68, "quality": "excellent" },
+        "Q6_K": { "size_multiplier": 0.78, "quality": "maximum" }
+      },
+      "use_cases": ["razonamiento", "agentes", "long context"],
+      "mtp_support": "algunos (Qwen3.6-35B-A3B-MTP) pero spec dec tiene límites en MoE",
+      "notes": "Estrella del show. n-cpu-moe permite correr 35B en 6-16GB VRAM. Caso Codacus GTX 1060."
+    },
+    {
+      "id": "moe-large",
+      "label": "MoE Grande (60B-120B+ total)",
+      "examples": ["Mixtral 8x7B", "Mixtral 8x22B", "Qwen3-235B-A22B"],
+      "architecture": "moe",
+      "param_range": [60, 250],
+      "active_params_b": 22,
+      "typical_quants": {
+        "Q3_K_M": { "size_multiplier": 0.45, "quality": "acceptable" },
+        "Q4_K_M": { "size_multiplier": 0.55, "quality": "good" }
+      },
+      "use_cases": ["investigación", "frontier reasoning"],
+      "mtp_support": "no",
+      "notes": "Requiere mucha RAM (64GB+) aun con offloading. No para beginners."
+    }
+  ]
+}

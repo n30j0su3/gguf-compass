@@ -1,0 +1,114 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-07-20",
+  "gpu_tiers": [
+    {
+      "id": "none",
+      "label": "Sin GPU / CPU only",
+      "vram_gb": 0,
+      "examples": ["Cualquier CPU moderna"],
+      "notes": "Inferencia 100% en CPU. Lento pero funciona para modelos pequeños."
+    },
+    {
+      "id": "gpu-4gb",
+      "label": "4 GB VRAM",
+      "vram_gb": 4,
+      "examples": ["GTX 1050 Ti", "GTX 1650", "RTX 3050 4GB laptop"],
+      "notes": "Muy limitado. Solo modelos ≤3B con quantización agresiva."
+    },
+    {
+      "id": "gpu-6gb",
+      "label": "6 GB VRAM",
+      "vram_gb": 6,
+      "examples": ["GTX 1060 6GB", "RTX 2060", "RTX 3050", "RTX 3060 laptop"],
+      "notes": "Tier mínimo viable. MoE offloading funciona (Codacus GTX 1060 case)."
+    },
+    {
+      "id": "gpu-8gb",
+      "label": "8 GB VRAM",
+      "vram_gb": 8,
+      "examples": ["RTX 2070", "RTX 3060 Ti", "RTX 4060", "RX 6600"],
+      "notes": "Sweet spot para modelos 7B-9B con Q4_K_M."
+    },
+    {
+      "id": "gpu-10gb",
+      "label": "10 GB VRAM",
+      "vram_gb": 10,
+      "examples": ["RTX 3080 10GB"],
+      "notes": "Similar a 8GB pero con margen para contexto más largo."
+    },
+    {
+      "id": "gpu-12gb",
+      "label": "12 GB VRAM",
+      "vram_gb": 12,
+      "examples": ["RTX 3060 12GB", "RTX 4070", "RX 6700 XT"],
+      "notes": "Codacus validó 35B MoE con n-cpu-moe aquí. Sweet spot para MoE."
+    },
+    {
+      "id": "gpu-16gb",
+      "label": "16 GB VRAM",
+      "vram_gb": 16,
+      "examples": ["RTX 4060 Ti 16GB", "RTX 5060 Ti", "RTX 4080 laptop", "RX 7800 XT"],
+      "notes": "Nuestro stack Vector. 27B dense Q3/Q4 o 35B MoE con offloading."
+    },
+    {
+      "id": "gpu-24gb",
+      "label": "24 GB VRAM",
+      "vram_gb": 24,
+      "examples": ["RTX 3090", "RTX 4090", "RX 7900 XTX"],
+      "notes": "Puedes correr 27B dense Q4_K_M full GPU o 70B MoE con offloading."
+    },
+    {
+      "id": "gpu-32gb",
+      "label": "32 GB VRAM",
+      "vram_gb": 32,
+      "examples": ["RTX 5090"],
+      "notes": "High-end consumer. 70B dense Q4 viable."
+    },
+    {
+      "id": "gpu-48gb",
+      "label": "48 GB+ VRAM",
+      "vram_gb": 48,
+      "examples": ["RTX A6000", "L40S", "H100", "Apple M3 Max 36GB+"],
+      "notes": "Workstation/datacenter. Casi cualquier modelo consumer cabe."
+    },
+    {
+      "id": "unified-16gb",
+      "label": "Unified Memory 16 GB (Apple/AMD APU)",
+      "vram_gb": 16,
+      "unified": true,
+      "examples": ["Apple M1/M2 16GB", "AMD Strix Halo base"],
+      "notes": "VRAM y RAM compartidas. Reservar ~4GB para OS."
+    },
+    {
+      "id": "unified-32gb",
+      "label": "Unified Memory 32 GB",
+      "vram_gb": 32,
+      "unified": true,
+      "examples": ["Apple M2 Pro 32GB", "AMD Strix Halo 32GB"],
+      "notes": "Cómodo para 27B dense Q4 o 35B MoE."
+    },
+    {
+      "id": "unified-64gb",
+      "label": "Unified Memory 64 GB+",
+      "vram_gb": 64,
+      "unified": true,
+      "examples": ["Apple M2/M3 Max 64GB", "AMD Strix Halo 64GB", "MiniV"],
+      "notes": "Nuestro MiniV. 35B MoE full GPU + 128K context viable."
+    }
+  ],
+  "ram_tiers": [
+    { "id": "ram-8gb", "label": "8 GB RAM", "gb": 8, "notes": "Solo modelos ≤3B. Muy justo." },
+    { "id": "ram-16gb", "label": "16 GB RAM", "gb": 16, "notes": "Mínimo recomendado. Modelos hasta 9B Q4." },
+    { "id": "ram-24gb", "label": "24 GB RAM", "gb": 24, "notes": "Codacus GTX 1060 case. 35B MoE con offloading." },
+    { "id": "ram-32gb", "label": "32 GB RAM", "gb": 32, "notes": "Sweet spot. 35B MoE cómodo con n-cpu-moe." },
+    { "id": "ram-64gb", "label": "64 GB RAM", "gb": 64, "notes": "Cualquier MoE consumer cabe." },
+    { "id": "ram-128gb", "label": "128 GB+ RAM", "gb": 128, "notes": "Workstation. 70B+ dense viable." }
+  ],
+  "cpu_tiers": [
+    { "id": "cpu-4core", "label": "4 cores", "cores": 4, "examples": ["i3-8100", "Ryzen 3"], "notes": "Codacus validó 35B MoE a 17 tok/s." },
+    { "id": "cpu-8core", "label": "8 cores", "cores": 8, "examples": ["i7-9700", "Ryzen 7 3700X"], "notes": "Baseline cómodo." },
+    { "id": "cpu-12core", "label": "12 cores", "cores": 12, "examples": ["Ryzen 9 5900X"], "notes": "Vector stack. -t 12." },
+    { "id": "cpu-16core", "label": "16+ cores", "cores": 16, "examples": ["Ryzen 9 7950X", "i9-13900K"], "notes": "High-end. Threads = cores físicos." }
+  ]
+}
