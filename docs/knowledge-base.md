@@ -472,5 +472,44 @@ llama-server \
 
 ---
 
+## Catálogo Codacus — Videos Relevantes (2026)
+
+**Canal:** 28.2K subs, 50 videos, creado 2016. Todos los videos visibles son de 2026.
+
+### Top 10 por Views (LLM local focus)
+
+| # | Video | Views | Duración | Key Topics | Herramientas | Modelos |
+|---|-------|-------|----------|------------|--------------|---------|
+| 1 | Running a 35B AI Model on 6GB VRAM, FAST | 304K | 15:06 | MoE offloading, VRAM tuning | llama.cpp | Qwen 3.6 35B-A3B |
+| 2 | Build Powerful Local Coding Agent | 64K | 16:56 | Coding agent, prompt processing | llama.cpp, Pi, Tailscale | REAP MoE |
+| 3 | Everything That Actually Matters for Local AI | 42K | 20:57 | Model selection, quantization | llama.cpp | MoE models |
+| 4 | I Asked Claude Fable 5 to Improve llama.cpp | 39K | 16:42 | AI-assisted coding | llama.cpp, Claude | — |
+| 5 | DFlash on GTX 1060: Dense Models Cheat VRAM | 36K | 11:30 | DFlash, dense vs MoE | llama.cpp | Dense models |
+| 6 | 1M Context in 500MB?! DeepSeek V4 + TurboQuant | 32K | 9:34 | Long context, quantization | TurboQuant | DeepSeek V4 |
+| 7 | One llama.cpp Update Made Local AI 65% Faster | 25K | 8:24 | MTP, inference speed | llama.cpp (MTP) | — |
+| 8 | 3.5GB model replace 35B daily driver? (Bonsai 27B) | 22K | 21:44 | Small models, comparison | — | Bonsai 27B |
+| 9 | Every Local AI Shares ONE Memory (LLM Wiki + OKF) | 19K | 15:19 | Shared memory, agents | LLM Wiki, OKF | — |
+| 10 | Build Your Own Private Local AI Stack | 17K | 14:41 | Full stack, automation | n8n | — |
+
+### Shorts Destacados
+
+| Short | Views | Insight |
+|-------|-------|---------|
+| An 8B model just beat Claude on a laptop | 15K | Local beats cloud |
+| 3x Faster LLM, by Google | 14K | Speed optimization |
+| Nvidia RTX Spark killed local AI bottleneck | 8.6K | Hardware, VRAM |
+| 67% faster than llama.cpp, same model | 7.9K | Alternative runtime |
+| It's Not the GPUs. It's the KV Cache. | 485 | KV cache bottleneck |
+
+### Hallazgos del Catálogo
+
+1. **No hay videos de 2025** — Todos son de 2026 (febrero-julio). Canal pivotó a local AI en 2026.
+2. **llama.cpp es ubicuo** — ~70% de videos lo mencionan.
+3. **Qwen 3.6 35B-A3B es el modelo estrella** — Aparece en los 2 videos más vistos.
+4. **Hardware de consumo es el foco** — GTX 1060 6GB, RTX 3060 12GB, M1 MacBook.
+5. **El video #1 (304K views)** es el tutorial de MoE offloading que validamos.
+
+---
+
 *Última actualización: 2026-07-20*
 *Este documento se actualiza con cada release de GGUF Compass.*
