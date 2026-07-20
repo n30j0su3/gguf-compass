@@ -1207,10 +1207,10 @@ const VALIDATED_PRESETS = [
         vram: 6,
         ram: 24,
         model: 'Qwen3.6-35B-A3B',
-        quant: 'IQ4_XS',
+        quant: 'UD-Q4_K_M',
         type: 'moe',
-        command: 'llama-server -m Qwen3.6-35B-A3B-IQ4_XS.gguf -ngl 99 --n-cpu-moe 20 --no-mmap --mlock --cache-type-k q4_0 --cache-type-v q4_0 -c 8192 -t 4 -b 512 --flash-attn auto --port 8080',
-        notes: 'El legendario setup de Codacus. 17 tok/s production-stable.',
+        command: 'llama-server -m Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -ngl 99 --n-cpu-moe 35 --no-mmap --mlock --cache-type-k q4_0 --cache-type-v q4_0 -c 64000 -t 4 -b 512 --flash-attn auto --port 8080',
+        notes: 'El legendario setup de Codacus. 3→17 tok/s en 5 iteraciones. 256K ctx con TurboQuant.',
         source: 'Codacus YouTube'
     },
     {
@@ -1218,13 +1218,26 @@ const VALIDATED_PRESETS = [
         name: 'RTX 3060 12GB Sweet Spot',
         gpu: 'RTX 3060 12GB',
         vram: 12,
-        ram: 16,
-        model: 'Qwen3.5-9B',
-        quant: 'Q4_K_M',
-        type: 'dense',
-        command: 'llama-server -m Qwen3.5-9B-Q4_K_M.gguf -ngl 99 -c 16384 -t 8 -b 512 --flash-attn auto --spec-type draft-mtp --spec-draft-n-max 2 --cache-reuse 256 --port 8080',
-        notes: 'Sweet spot para coding. ~70 tok/s con MTP.',
-        source: 'Internal benchmarks'
+        ram: 32,
+        model: 'Qwen3.6-35B-A3B',
+        quant: 'UD-Q4_K_M',
+        type: 'moe',
+        command: 'llama-server -m Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -ngl 99 --n-cpu-moe 32 --flash-attn auto --jinja -c 65536 -t 16 -b 512 -ub 128 --cache-type-k q8_0 --cache-type-v q8_0 --port 8080',
+        notes: 'KnightLi receta: 15→33-36 tok/s. Sweet spot mainstream.',
+        source: 'KnightLi / Codacus'
+    },
+    {
+        id: 'preset-rtx3070',
+        name: 'RTX 3070 8GB MoE Max',
+        gpu: 'RTX 3070 8GB',
+        vram: 8,
+        ram: 64,
+        model: 'Qwen3.6-35B-A3B',
+        quant: 'UD-Q4_K_M',
+        type: 'moe',
+        command: 'llama-server -m Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -ngl 99 --n-cpu-moe 999 --flash-attn auto --jinja -c 32768 -t 12 -b 512 --cache-type-k q4_0 --cache-type-v q4_0 --mlock --port 8080',
+        notes: 'n-cpu-moe 999: todos los expertos a CPU. Funcional ~8-15 tok/s.',
+        source: 'KnightLi'
     },
     {
         id: 'preset-rtx4060ti',
@@ -1232,12 +1245,12 @@ const VALIDATED_PRESETS = [
         gpu: 'RTX 4060 Ti 16GB',
         vram: 16,
         ram: 32,
-        model: 'Qwen3.6-27B',
-        quant: 'Q3_K_S',
-        type: 'dense',
-        command: 'llama-server -m Qwen3.6-27B-Q3_K_S.gguf -ngl 99 -c 32768 -t 12 -b 512 --flash-attn auto --cache-type-k q4_0 --cache-type-v q4_0 --cache-reuse 256 --port 8080',
-        notes: '27B full GPU con Q3_K_S. ~40 tok/s.',
-        source: 'Internal benchmarks'
+        model: 'Qwen3.6-35B-A3B',
+        quant: 'UD-Q4_K_M',
+        type: 'moe',
+        command: 'llama-server -m Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -ngl 99 --n-cpu-moe 16 --flash-attn auto -c 65536 -t 12 -b 512 --cache-type-k q8_0 --cache-type-v q8_0 --port 8080',
+        notes: 'n-cpu-moe 16-24: balance GPU/CPU. ~25-35 tok/s.',
+        source: 'Codacus / Comunidad'
     },
     {
         id: 'preset-rtx4090',
@@ -1246,11 +1259,11 @@ const VALIDATED_PRESETS = [
         vram: 24,
         ram: 64,
         model: 'Qwen3.6-35B-A3B',
-        quant: 'Q4_K_M',
+        quant: 'UD-Q4_K_XL',
         type: 'moe',
-        command: 'llama-server -m Qwen3.6-35B-A3B-Q4_K_M.gguf -ngl 99 --n-cpu-moe 10 -c 65536 -t 16 -b 512 --flash-attn auto --cache-type-k q4_0 --cache-type-v q4_0 --mlock --port 8080',
-        notes: '35B MoE con offloading parcial. ~45 tok/s.',
-        source: 'Internal benchmarks'
+        command: 'llama-server -m Qwen3.6-35B-A3B-UD-Q4_K_XL.gguf -ngl 99 --flash-attn auto -c 65536 -t 16 -b 512 --cache-type-k q8_0 --cache-type-v q8_0 --port 8080',
+        notes: 'Sin cpu-moe — todo en GPU. ~120-140+ tok/s.',
+        source: 'Codacus / Comunidad'
     },
     {
         id: 'preset-m2max',

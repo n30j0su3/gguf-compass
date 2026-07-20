@@ -115,12 +115,35 @@ llama-server \
 
 **Resultado:** 17 tok/s — production-stable por semanas.
 
+### Valores de n-cpu-moe por VRAM tier (Codacus + comunidad)
+
+| VRAM | GPU Ejemplo | n-cpu-moe inicio | Rango | Batch |
+|------|-------------|------------------|-------|-------|
+| **6 GB** | GTX 1060, RTX 3050 | 35-41 | 27-45 | 512-2048 |
+| **8 GB** | RTX 3070, RTX 4060 | 999 (máximo) | 32-999 | 512-1024 |
+| **12 GB** | RTX 3060, RTX 4070 | 32 | 24-48 | 512-4096 |
+| **16 GB** | RTX 4060 Ti, RTX 5070 Ti | 16-24 | 8-32 | 1024-4096 |
+| **24 GB** | RTX 3090, RTX 4090 | 0 (no usar) | 0 | 2048-4096 |
+
+> **Regla de oro (Codacus):** Si VRAM ≤ 8GB, `--n-cpu-moe 999` (todos los expertos a CPU) es la estrategia correcta. Si VRAM ≥ 12GB, ajusta fino entre 16-48.
+
+### Progresión de velocidad documentada (Codacus GTX 1060)
+
+| Iteración | Cambio | tok/s | Delta |
+|-----------|--------|-------|-------|
+| 1 | Baseline (solo -ngl 99) | 3 | — |
+| 2 | + `--n-cpu-moe 41` | 10 | +233% |
+| 3 | + `--no-mmap` | 13.5 | +35% |
+| 4 | n-cpu-moe 41→35 | 17 | +26% |
+| 5 | + `--mlock` + TurboQuant | 17 sostenido | 0% pero desbloquea 256K ctx |
+
 ### Cuándo NO usar MoE offloading
 
 - ❌ Si el modelo cabe completo en VRAM (sin offloading es más rápido)
 - ❌ Si tienes <16GB RAM (page faults matan performance)
 - ❌ Si tu CPU es muy vieja (<4 cores, sin AVX2)
 - ❌ Para latency-sensitive apps (offloading añade overhead)
+- ❌ **Speculative decoding NO funciona** — draft model da 11 tok/s vs 17 sin él (Codacus validado)
 
 ---
 
@@ -135,19 +158,22 @@ Reducir la precisión de los pesos del modelo para ahorrar memoria.
 | Q2_K | 2.5 | Baja | ~3.2 GB | Testing only |
 | Q3_K_S | 3.4 | Aceptable | ~3.8 GB | VRAM muy limitada |
 | Q3_K_M | 3.9 | Buena | ~4.2 GB | Balance |
-| **Q4_K_M** | **4.8** | **Muy buena** | **~5.2 GB** | **Default recomendado** |
+| Q4_K_M | 4.8 | Muy buena | ~5.2 GB | Default recomendado |
 | Q5_K_M | 5.7 | Excelente | ~6.5 GB | Calidad prioritario |
 | Q6_K | 6.6 | Casi perfecta | ~7.8 GB | VRAM de sobra |
 | Q8_0 | 8.0 | Perfecta | ~9.5 GB | Máxima calidad |
 | IQ4_XS | 4.25 | Muy buena+ | ~4.8 GB | MoE (imatrix) |
+| **UD-Q4_K_XL** | **~4.5** | **Excelente** | **~4.8 GB** | **Unsloth Dynamic — mejor calidad/tamaño que Q4_K_M** |
 
 ### Reglas de quantización
 
 1. **Q4_K_M es el sweet spot** para 90% de usuarios
 2. **IQ4_XS es mejor para MoE** (importance matrix, mejor calidad por bit)
-3. **Nunca uses Q2 en producción** — degradación severa
-4. **Si cabe en VRAM, sube de quant** — Q6_K > Q4_K_M si tienes espacio
-5. **Si no cabe, baja de quant antes de offloading** — Q3_K_S > offloading parcial
+3. **UD (Unsloth Dynamic) supera a Q4_K_M** — igual calidad con 1.7GB menos, o mejor calidad al mismo peso (Codacus validado)
+4. **Nunca uses Q2 en producción** — degradación severa
+5. **Si cabe en VRAM, sube de quant** — Q6_K > Q4_K_M si tienes espacio
+6. **Si no cabe, baja de quant antes de offloading** — Q3_K_S > offloading parcial
+7. **Nunca uses el quant default de Ollama/LM Studio** — baja cuantos de bartowski/Unsloth en HuggingFace (Codacus)
 
 ---
 
@@ -212,6 +238,96 @@ Memoria que guarda los tokens ya procesados para no recalcular attention. Crece 
 ```
 
 **Por qué:** K determina qué tokens coinciden (necesita precisión). V puede comprimirse más.
+
+### TurboQuant — estado actual (2026-07)
+
+| Implementación | Estado | Flags | Compresión |
+|----------------|--------|-------|-----------|
+| **TheTom/llama-cpp-turboquant** | ✅ Funcional | `-ctk turbo4 -ctv turbo2` | ~4x |
+| **turboquant_plus (AmesianX)** | ✅ Fork mejorado | `-ctk tbq3 -ctv tbq3` | ~4.7x |
+| **PR #21089 (mainline)** | 🔄 Abierto | `-ctk tbq3_0 -ctv tbq3_0` | ~3-4 bits |
+| **KV cache q4_0 (mainline)** | ✅ Estable | `-ctk q4_0 -ctv q4_0` | 4x |
+
+> **Nota Codacus:** TurboQuant no mejora tok/s directamente, pero **desbloquea contextos largos** (256K vs 64K) que de otra forma serían imposibles.
+
+---
+
+## Herramientas Comparativas
+
+### Tabla de decisión rápida
+
+| Herramienta | Tipo | Overhead | Control | Ideal para | No usar si... |
+|-------------|------|----------|---------|-----------|---------------|
+| **llama.cpp** | CLI | 0% | Total | Power users, benchmarking | Quieres GUI |
+| **Ollama** | CLI | +5-15% | Básico | Principiantes, Docker fans | Necesitas flags avanzados |
+| **LM Studio** | GUI | ~20% | Medio | Windows/Mac, no-code | Linux, headless servers |
+| **ik_llama.cpp** | CLI | -8-15%* | Alto | Q5+ quants, MoE max | Quieres estabilidad mainline |
+| **vLLM** | Python | Variable | Medio | Datacenter, concurrencia | Single-user, poca VRAM |
+| **BeeLlama.cpp** | CLI | Experimental | Alto | DFlash, máxima velocidad | Producción estable |
+
+*ik_llama.cpp es *más rápido* que mainline en Q5+ quants.
+
+### vLLM — gotcha crítico
+
+vLLM **pre-asigna 90% de VRAM** al iniciar. Esto es normal (PagedAttention), pero significa:
+- No puedes correr otros procesos GPU simultáneamente
+- El "uso real" es menor, pero la reserva es total
+- Para single-user, llama.cpp es más eficiente
+
+### ik_llama.cpp — cuándo usarlo
+
+- ✅ Quants Q5_K_M o superiores
+- ✅ MoE con muchos expertos
+- ✅ Necesitas `--override-tensor` avanzado
+- ❌ Quants bajos (Q2, Q3) — sin beneficio
+- ❌ Quieres estabilidad garantizada
+
+### BeeLlama.cpp — DFlash
+
+Block Diffusion para speculative decoding:
+
+| Modelo | Vanilla | DFlash | Contexto |
+|--------|---------|--------|----------|
+| Qwen 27B | 48 t/s | **135 t/s** | Pico |
+| Qwen 27B | 18 t/s | **72 t/s** | 200K ctx |
+
+**No usar para:** JSON, matemáticas, cálculos precisos (difusión puede alterar números).
+
+---
+
+## Árbol de Decisión Rápido
+
+```
+¿Cuánta VRAM tienes?
+│
+├── ≤ 4GB → Modelos ≤3B Q4_K_M, CPU-only si es necesario
+│
+├── 6-8GB → MoE 35B con --n-cpu-moe 999
+│           O Dense 7-9B Q4_K_M full GPU
+│
+├── 12GB → MoE 35B con --n-cpu-moe 32
+│          O Dense 13B Q4_K_M
+│
+├── 16GB → MoE 35B con --n-cpu-moe 16-24
+│          O Dense 27B Q3_K_S
+│
+└── 24GB+ → Dense 27B Q4_K_M full GPU
+            O MoE 35B Q4_K_M sin offload
+
+¿Qué caso de uso?
+│
+├── Coding → MTP si dense y ctx <4K
+│            DFlash si quieres máxima velocidad
+│            ngram-mod si código muy repetitivo
+│
+├── Chat general → Sin spec dec, Q4_K_M es suficiente
+│
+├── Razonamiento → Dense grande, sin spec dec, ctx 16K+
+│
+├── Creativo → Sin spec dec (9% acceptance)
+│
+└── RAG/documentos → KV cache quant (q4_0), ctx 32K+
+```
 
 ---
 
