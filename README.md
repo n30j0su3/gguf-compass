@@ -239,6 +239,9 @@ MIT License — ver [LICENSE](LICENSE) para detalles.
 - **YouTube:** https://youtube.com/@freakingjson
 - **Instagram:** https://instagram.com/freakingjson
 - **TikTok:** https://tiktok.com/@freakingjson
+- **Twitch:** https://twitch.tv/freakingjson
+- **Threads:** https://threads.net/@freakingjson
+- **CodePen:** https://codepen.io/FreakingJSON
 - **Todas las redes:** https://linktr.ee/freakingjson
 - **Apoyar:** https://buymeacoffee.com/freakingjson
 - **Proyecto / Issues:** https://github.com/n30j0su3/gguf-compass/issues

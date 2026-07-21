@@ -126,7 +126,7 @@
     },
     "advanced": {
       "--flash-attn": "Flash Attention (on/auto). Recomendado.",
-      "--jinja": "Usar Jinja chat templates",
+      "--jinja": "Motor Jinja de chat, habilitado por defecto en llama-server actual",
       "--ubatch": "Micro-batch size (solo builds self-compiled)",
       "--parallel": "Slots paralelos (1 para MoE grande)",
       "--reasoning": "on/off para thinking models",

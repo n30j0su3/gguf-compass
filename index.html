@@ -1682,7 +1682,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
                         <span class="slider-value" id="expert-quant-value">Q4_K_M</span>
                     </div>
                     <select id="expert-quant" onchange="updateExpert()" style="width: 100%; padding: 0.5rem; border-radius: 0.5rem; background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border);">
-                        <option value="Q4_K_M" selected>Q4_K_M ⭐ (mínimo recomendado para trabajo real)</option>
+                        <option value="Q4_K_M" selected>Q4_K_M ⭐ (piso práctico recomendado)</option>
                         <option value="Q5_K_M">Q5_K_M (alta calidad)</option>
                         <option value="Q6_K">Q6_K (máxima calidad)</option>
                         <option value="Q8_0">Q8_0 (calidad referencia)</option>
@@ -1712,8 +1712,12 @@ input[type="range"]::-webkit-slider-thumb:hover {
                     <div class="toggle-switch" id="expert-kv" onclick="this.classList.toggle('active'); updateExpert();"></div>
                 </div>
                 <div class="toggle-group">
-                    <span class="toggle-label">Speculative Decoding</span>
+                    <span class="toggle-label">Speculative Decoding <small style="display:block;color:var(--text-muted);font-weight:400;margin-top:.15rem">Solo modelos con heads MTP compatibles</small></span>
                     <div class="toggle-switch" id="expert-spec" onclick="this.classList.toggle('active'); updateExpert();"></div>
+                </div>
+                <div class="toggle-group">
+                    <span class="toggle-label">Reasoning 4K <small style="display:block;color:var(--text-muted);font-weight:400;margin-top:.15rem">Opt-in para modelos thinking; default upstream = auto</small></span>
+                    <div class="toggle-switch" id="expert-reasoning" onclick="this.classList.toggle('active'); updateExpert();"></div>
                 </div>
             </div>
 
@@ -1748,6 +1752,9 @@ input[type="range"]::-webkit-slider-thumb:hover {
                 <a class="social-link" href="https://www.youtube.com/@freakingjson" target="_blank" rel="noopener"><span>▶ YouTube</span><b>↗</b></a>
                 <a class="social-link" href="https://www.instagram.com/freakingjson/" target="_blank" rel="noopener"><span>◎ Instagram</span><b>↗</b></a>
                 <a class="social-link" href="https://www.tiktok.com/@freakingjson" target="_blank" rel="noopener"><span>♪ TikTok</span><b>↗</b></a>
+                <a class="social-link" href="https://www.twitch.tv/freakingjson" target="_blank" rel="noopener"><span>◉ Twitch</span><b>↗</b></a>
+                <a class="social-link" href="https://www.threads.net/@freakingjson" target="_blank" rel="noopener"><span>＠ Threads</span><b>↗</b></a>
+                <a class="social-link" href="https://codepen.io/FreakingJSON" target="_blank" rel="noopener"><span>◇ CodePen</span><b>↗</b></a>
                 <a class="social-link" href="https://linktr.ee/freakingjson" target="_blank" rel="noopener"><span>＋ Todas las redes</span><b>↗</b></a>
                 <a class="social-link" href="https://buymeacoffee.com/freakingjson" target="_blank" rel="noopener"><span>☕ Apoyar</span><b>↗</b></a>
                 <a class="social-link" href="https://github.com/n30j0su3/gguf-compass/blob/main/LICENSE" target="_blank" rel="noopener"><span>⚖ Licencia MIT</span><b>↗</b></a>
@@ -1777,7 +1784,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
         <div class="footer-main">
             <div class="footer-brand"><img src="assets/freakingjson-logo.png" alt="" width="46" height="46"><div><strong style="font-size:.9rem;color:var(--text-primary)">GGUF Compass</strong><div style="color:var(--text-muted);font-size:.7rem;margin-top:.25rem">Local AI sin humo. Código abierto, datos locales.</div></div></div>
             <div class="footer-col"><strong>Proyecto</strong><a href="https://github.com/n30j0su3/gguf-compass" target="_blank" rel="noopener">Código fuente</a><a href="https://github.com/n30j0su3/gguf-compass/issues" target="_blank" rel="noopener">Reportar un problema</a><a href="https://github.com/n30j0su3/gguf-compass/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contribuir</a></div>
-            <div class="footer-col"><strong>Referencias</strong><a href="https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md" target="_blank" rel="noopener">llama.cpp server docs</a><a href="https://huggingface.co/models?library=gguf" target="_blank" rel="noopener">Modelos GGUF</a><a href="https://freakingjson.com" target="_blank" rel="noopener">FreakingJSON</a></div>
+            <div class="footer-col"><strong>Referencias</strong><a href="https://github.com/n30j0su3/gguf-compass/blob/main/docs/knowledge-base.md" target="_blank" rel="noopener">Knowledge Base</a><a href="https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md" target="_blank" rel="noopener">llama.cpp server docs</a><a href="https://huggingface.co/models?library=gguf" target="_blank" rel="noopener">Modelos GGUF</a><a href="https://freakingjson.com" target="_blank" rel="noopener">FreakingJSON</a></div>
         </div>
         <div class="footer-legal"><span>© 2026 FreakingJSON. GGUF Compass se distribuye bajo licencia MIT.</span><span>Sin cookies · Sin analytics · Sin backend · Tus selecciones no salen del navegador.</span></div>
     </div>
@@ -1896,7 +1903,7 @@ const VALIDATED_PRESETS = [
         model: 'Qwen3.6-35B-A3B',
         quant: 'UD-Q4_K_M',
         type: 'moe',
-        command: 'llama-server -m Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -ngl all --n-cpu-moe 32 --flash-attn auto --jinja -c 65536 -t 16 -b 512 -ub 128 --cache-type-k q8_0 --cache-type-v q8_0 --port 8080',
+        command: 'llama-server -m Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -ngl all --n-cpu-moe 32 --flash-attn auto -c 65536 -t 16 -b 512 --cache-type-k q8_0 --cache-type-v q8_0 --port 8080',
         notes: 'Receta comunitaria reportada en Ryzen 7 3700X + 32GB RAM. El rango 33-36 tok/s no se extrapola a otra CPU/build.',
         source: 'KnightLi / Codacus',
         evidence: 'community',
@@ -1911,7 +1918,7 @@ const VALIDATED_PRESETS = [
         model: 'Qwen3.6-35B-A3B',
         quant: 'UD-Q4_K_M',
         type: 'moe',
-        command: 'llama-server -m Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -ngl all --n-cpu-moe 999 --flash-attn auto --jinja -c 32768 -t 12 -b 512 --cache-type-k turbo4 --cache-type-v turbo3 --mlock --port 8080',
+        command: 'llama-server -m Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -ngl all --n-cpu-moe 999 --flash-attn auto -c 32768 -t 12 -b 512 --cache-type-k turbo4 --cache-type-v turbo3 --mlock --port 8080',
         notes: 'Receta comunitaria: MoE con expertos en CPU/RAM. Toma 8-15 tok/s como rango reportado, no como garantía.',
         source: 'KnightLi',
         evidence: 'community',
@@ -2456,16 +2463,18 @@ const FLAG_INFO = {
     '-t': { name: 'Threads CPU', desc: 'Hilos CPU para generación/offload. Empieza cerca de cores físicos y mide: más hilos no siempre significa más velocidad.' },
     '-b': { name: 'Batch lógico', desc: 'Máximo batch lógico para procesar prompts. Un valor alto acelera prefill, pero aumenta presión de memoria.' },
     '-ub': { name: 'Micro-batch físico', desc: 'Lote físico ejecutado por vez. 512 es el default upstream actual; baja a 256/128 si aparece OOM.' },
-    '--no-mmap': { name: 'Sin mmap', desc: 'Desactiva el mapeo del archivo. Puede reducir pageouts junto a mlock, pero normalmente hace más lenta la carga y aumenta memoria residente.' },
+    '--no-mmap': { name: 'Sin mmap', desc: 'Desactiva el mapeo del archivo. Puede reducir pageouts si NO usas mlock, pero normalmente hace más lenta la carga y aumenta memoria residente. No se recomienda como default.' },
     '--mlock': { name: 'Bloqueo en RAM', desc: 'Pide al sistema mantener el modelo en RAM y evitar swap/compresión. Puede requerir límites/permisos del sistema.' },
     '--cache-type-k': { name: 'KV Cache K', desc: 'Precisión de las Keys del contexto. llama.cpp oficial: q8_0 es el fallback conservador; TurboQuant compatible: turbo4. ⚠️ Nunca sugerimos q4_0: puede degradar coherencia y favorecer loops.' },
     '--cache-type-v': { name: 'KV Cache V', desc: 'Precisión de los Values del contexto. llama.cpp oficial: q8_0; TurboQuant compatible: turbo3. Los tipos turbo NO existen en upstream: usa el runtime indicado por el badge.' },
-    '--jinja': { name: 'Jinja Template', desc: 'Usa la plantilla de chat Jinja del modelo en vez del formato legacy. Necesario para tool calling y modelos recientes (Qwen3, etc.).' },
+    '--jinja': { name: 'Jinja Template', desc: 'Motor de plantillas de chat. En llama-server actual está habilitado por defecto; solo necesitas --no-jinja para diagnóstico legacy.' },
     '--flash-attn': { name: 'Flash Attention', desc: 'Kernel de atención optimizado: menos VRAM y más velocidad, sobre todo en contextos largos. Recomendado siempre que el modelo lo soporte.' },
-    '--spec-type': { name: 'Speculative Decoding', desc: 'El modelo predice varios tokens por pasada (MTP/draft) y los verifica en batch. Hasta +75% de velocidad en código y texto estructurado.' },
+    '--spec-type': { name: 'Speculative Decoding', desc: 'Predice varios tokens y los verifica en batch. Solo aporta cuando el modelo/runtime soporta el método y la tasa de aceptación compensa el overhead.' },
     '--spec-draft-n-max': { name: 'Draft Max', desc: 'Máximo de tokens que el draft predice por pasada. Más alto = más velocidad potencial, más tokens rechazados.' },
     '--spec-draft-n-min': { name: 'Draft Min', desc: 'Mínimo de tokens draft que se intentan antes de verificar. 1 = verificación inmediata, el modo más seguro.' },
-    '--cache-reuse': { name: 'Cache Reuse', desc: 'Reutiliza el KV cache de turnos anteriores cuando el prompt comparte prefijo. Acelera chats multi-turno y sesiones de agente.' },
+    '--reasoning': { name: 'Reasoning', desc: 'Controla el modo thinking del chat. Upstream usa auto por defecto; activa on solo con un modelo/template que soporte razonamiento.' },
+    '--reasoning-budget': { name: 'Budget de razonamiento', desc: 'Máximo orientativo de tokens para thinking. Más presupuesto aumenta latencia y consumo de contexto; 4096 es un punto de partida, no una garantía.' },
+    '--cache-reuse': { name: 'Cache Reuse', desc: 'Reutiliza prefijos del KV cache; requiere prompt caching, que llama-server habilita por defecto. Útil en chats multi-turno, no es una aceleración universal.' },
     '--port': { name: 'Puerto', desc: 'Puerto del servidor HTTP de llama-server. Expone una API OpenAI-compatible en /v1 para conectar tus apps.' },
     '--quantization': { name: 'Quantización (vLLM)', desc: 'Formato de pesos con el que vLLM carga el modelo. Debe coincidir con el artifact descargado.' },
     '--max-model-len': { name: 'Max Length (vLLM)', desc: 'Contexto máximo que vLLM reserva al arrancar. Impacta directamente la VRAM ocupada por el KV cache.' },
@@ -2601,13 +2610,13 @@ function generateCommand(rec, tool, useCase, ctx, profile = 'balanceado') {
         // Threads
         cmd += `  -t ${threads} \\\n`;
         
-        // Batch size (profile-driven)
+        // Batch size: lower values preserve VRAM; 2048 is upstream's logical default.
         if (profile === 'estable') {
             cmd += `  -b 256 \\\n`;
         } else if (profile === 'velocidad') {
-            cmd += `  -b 1024 -ub 512 \\\n`;
+            cmd += `  -b ${vram <= 8 ? 1024 : 2048} \\\n`;
         } else {
-            cmd += `  -b 512 \\\n`;
+            cmd += `  -b ${vram <= 8 ? 512 : 1024} \\\n`;
         }
         
         // Keep mmap enabled by default: it is upstream's normal, portable path.
@@ -2840,6 +2849,7 @@ function updateExpert() {
     const useFA = document.getElementById('expert-fa').classList.contains('active');
     const useKV = document.getElementById('expert-kv').classList.contains('active');
     const useSpec = document.getElementById('expert-spec').classList.contains('active');
+    const useReasoning = document.getElementById('expert-reasoning').classList.contains('active');
     
     // Update labels
     document.getElementById('expert-vram-value').textContent = vram;
@@ -2881,10 +2891,9 @@ function updateExpert() {
     // Batch
     cmd += `  -b 512 \\\n`;
     
-    // Memory
-    if (modelSize > vram) {
-        cmd += `  --no-mmap \\\n`;
-        if (ram >= 32) cmd += `  --mlock \\\n`;
+    // Keep mmap enabled. Stable users can add mlock when system limits permit it.
+    if (modelSize > vram && ram >= 32) {
+        cmd += `  --mlock \\\n`;
     }
     
     // KV cache — turbo4/turbo3 (validado en benchmarks FJSON)
@@ -2900,6 +2909,11 @@ function updateExpert() {
     // Speculative decoding
     if (useSpec && !isMoE) {
         cmd += `  --spec-type draft-mtp \\\n  --spec-draft-n-max 2 \\\n`;
+    }
+
+    // Explicit reasoning opt-in. Auto remains the upstream default when disabled.
+    if (useReasoning) {
+        cmd += `  --reasoning on \\\n  --reasoning-budget 4096 \\\n`;
     }
     
     // Cache reuse
