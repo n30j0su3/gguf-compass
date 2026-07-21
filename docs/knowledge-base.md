@@ -167,13 +167,26 @@ Reducir la precisión de los pesos del modelo para ahorrar memoria.
 
 ### Reglas de quantización
 
-1. **Q4_K_M es el sweet spot** para 90% de usuarios
-2. **IQ4_XS es mejor para MoE** (importance matrix, mejor calidad por bit)
-3. **UD (Unsloth Dynamic) supera a Q4_K_M** — igual calidad con 1.7GB menos, o mejor calidad al mismo peso (Codacus validado)
-4. **Nunca uses Q2 en producción** — degradación severa
-5. **Si cabe en VRAM, sube de quant** — Q6_K > Q4_K_M si tienes espacio
-6. **Si no cabe, baja de quant antes de offloading** — Q3_K_S > offloading parcial
+1. **Q4_K_M es el MÍNIMO para trabajo real** — Calidad profesional garantizada (~95% del original)
+2. **Q5_K_M / Q6_K** — Si tienes VRAM de sobra. Mejor calidad, mismo modelo
+3. **IQ4_XS es mejor para MoE** (importance matrix, mejor calidad por bit)
+4. **UD (Unsloth Dynamic) supera a Q4_K_M** — igual calidad con 1.7GB menos, o mejor calidad al mismo peso (Codacus validado)
+5. **⚠️ Q3_K_S / Q3_K_M = SOLO emergencia VRAM (≤4GB)** — Calidad degradada (~80%), no para producción
+6. **❌ Q2_K = NUNCA para trabajo real** — Solo testing/experimentación (~60% calidad)
 7. **Nunca uses el quant default de Ollama/LM Studio** — baja cuantos de bartowski/Unsloth en HuggingFace (Codacus)
+
+### ¿Por qué Q4 es el piso mínimo?
+
+| Aspecto | Q4_K_M | Q3_K_S | Q2_K |
+|---------|--------|--------|------|
+| **Calidad preservada** | ~95% | ~80% | ~60% |
+| **Coherencia en respuestas largas** | ✅ Estable | ⚠️ Degradada | ❌ Rota |
+| **Errores factuales** | Raros | Ocasionales | Frecuentes |
+| **Código generado** | Production-ready | Bugs sutiles | Bugs evidentes |
+| **Razonamiento multi-paso** | ✅ Funciona | ⚠️ Falla a veces | ❌ No confiable |
+| **Uso recomendado** | **Producción** | Testing/emergencia | Solo experimentación |
+
+**Regla de oro:** Si tu VRAM no permite Q4_K_M, usa un modelo más pequeño en Q4 antes que un modelo grande en Q3.
 
 ---
 
@@ -300,33 +313,37 @@ Block Diffusion para speculative decoding:
 ```
 ¿Cuánta VRAM tienes?
 │
-├── ≤ 4GB → Modelos ≤3B Q4_K_M, CPU-only si es necesario
+├── ≤ 4GB → Modelos ≤3B Q4_K_M (mínimo aceptable)
+│           ⚠️ Q3 solo si es ≤3B y no hay alternativa
+│           ❌ NUNCA Q2 para trabajo real
 │
-├── 6-8GB → MoE 35B con --n-cpu-moe 999
+├── 6-8GB → MoE 35B con --n-cpu-moe 999 (Q4_K_M o IQ4_XS)
 │           O Dense 7-9B Q4_K_M full GPU
+│           ❌ NO uses Q3/Q2 en modelos >7B para trabajo
 │
-├── 12GB → MoE 35B con --n-cpu-moe 32
+├── 12GB → MoE 35B con --n-cpu-moe 32 (Q4_K_M)
 │          O Dense 13B Q4_K_M
 │
-├── 16GB → MoE 35B con --n-cpu-moe 16-24
-│          O Dense 27B Q3_K_S
+├── 16GB → MoE 35B con --n-cpu-moe 16-24 (Q4_K_M/IQ4_XS)
+│          O Dense 27B Q4_K_M
 │
 └── 24GB+ → Dense 27B Q4_K_M full GPU
             O MoE 35B Q4_K_M sin offload
+            O sube a Q5_K_M / Q6_K si sobra VRAM
 
 ¿Qué caso de uso?
 │
-├── Coding → MTP si dense y ctx <4K
+├── Coding → Q4_K_M mínimo. MTP si dense y ctx <4K
 │            DFlash si quieres máxima velocidad
 │            ngram-mod si código muy repetitivo
 │
-├── Chat general → Sin spec dec, Q4_K_M es suficiente
+├── Chat general → Q4_K_M es suficiente. Sin spec dec.
 │
-├── Razonamiento → Dense grande, sin spec dec, ctx 16K+
+├── Razonamiento → Q4_K_M o superior. Dense grande. Sin spec dec. ctx 16K+
 │
-├── Creativo → Sin spec dec (9% acceptance)
+├── Creativo → Q4_K_M mínimo. Sin spec dec (9% acceptance)
 │
-└── RAG/documentos → KV cache quant (q4_0), ctx 32K+
+└── RAG/documentos → Q4_K_M + KV cache quant (q4_0). ctx 32K+
 ```
 
 ---

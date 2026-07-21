@@ -916,7 +916,20 @@ input[type="range"]::-webkit-slider-thumb {
                     <!-- Populated by JS -->
                 </div>
 
-                <div class="custom-input-section" style="margin-top: 1.5rem;">
+                <div class="custom-input-section" style="margin-top: 1.5rem; border-color: var(--warning);">
+                    <div class="custom-input-title" style="color: var(--warning);">⚠️ Regla de Oro de Quantización</div>
+                    <div style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6;">
+                        <strong>Q4_K_M es el mínimo para trabajo real.</strong> Por debajo de Q4, los modelos pierden coherencia, cometen errores factuales, y generan código con bugs sutiles. Solo usa Q3 o Q2 si:
+                        <ul style="margin: 0.5rem 0 0 1.25rem;">
+                            <li>Estás haciendo <strong>testing/experimentación</strong> (no producción)</li>
+                            <li>Tu VRAM es <strong>≤ 4GB</strong> y no tienes alternativa</li>
+                            <li>El modelo es <strong>≤ 3B parámetros</strong> (los pequeños toleran mejor quant bajo)</li>
+                        </ul>
+                        <strong>Para trabajo real (coding, agentes, producción): Q4_K_M o superior.</strong>
+                    </div>
+                </div>
+
+                <div class="custom-input-section">
                     <div class="custom-input-title">⚡ Presets validados por la comunidad:</div>
                     <div id="preset-suggestions" style="display: grid; gap: 0.75rem; margin-top: 1rem;">
                         <!-- Populated by JS when GPU matches a preset -->
@@ -1049,13 +1062,13 @@ input[type="range"]::-webkit-slider-thumb {
                         <span class="slider-value" id="expert-quant-value">Q4_K_M</span>
                     </div>
                     <select id="expert-quant" onchange="updateExpert()" style="width: 100%; padding: 0.5rem; border-radius: 0.5rem; background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border);">
-                        <option value="Q2_K">Q2_K (máxima compresión)</option>
-                        <option value="Q3_K_S">Q3_K_S</option>
-                        <option value="Q3_K_M">Q3_K_M</option>
-                        <option value="Q4_K_M" selected>Q4_K_M (recomendado)</option>
-                        <option value="Q5_K_M">Q5_K_M</option>
-                        <option value="Q6_K">Q6_K</option>
-                        <option value="Q8_0">Q8_0 (máxima calidad)</option>
+                        <option value="Q4_K_M" selected>Q4_K_M ⭐ (mínimo recomendado para trabajo real)</option>
+                        <option value="Q5_K_M">Q5_K_M (alta calidad)</option>
+                        <option value="Q6_K">Q6_K (máxima calidad)</option>
+                        <option value="Q8_0">Q8_0 (calidad referencia)</option>
+                        <option value="Q3_K_M">Q3_K_M ⚠️ (solo emergencia VRAM)</option>
+                        <option value="Q3_K_S">Q3_K_S ⚠️ (solo emergencia VRAM)</option>
+                        <option value="Q2_K">Q2_K ❌ (testing only — no usar para trabajo)</option>
                     </select>
                 </div>
             </div>
@@ -1189,8 +1202,8 @@ const MODEL_RECOMMENDATIONS = {
     // Dense models by size
     dense: {
         small: { params: 3, quants: { 'Q4_K_M': 1.8, 'Q6_K': 2.5, 'Q8_0': 3.2 }, examples: ['Qwen3.5-2B', 'Llama-3.2-3B'] },
-        medium: { params: 9, quants: { 'Q3_K_S': 3.8, 'Q4_K_M': 5.2, 'Q5_K_M': 6.5, 'Q6_K': 7.8 }, examples: ['Qwen3.5-9B', 'Gemma-4-12B', 'DeepSeek-R1-14B'] },
-        large: { params: 27, quants: { 'Q2_K_XL': 9.5, 'Q3_K_S': 11.5, 'Q3_K_M': 12.5, 'Q4_K_M': 15.5 }, examples: ['Qwen3.6-27B', 'Qwopus3.6-27B-v2'] }
+        medium: { params: 9, quants: { 'Q4_K_M': 5.2, 'Q5_K_M': 6.5, 'Q6_K': 7.8 }, examples: ['Qwen3.5-9B', 'Gemma-4-12B', 'DeepSeek-R1-14B'] },
+        large: { params: 27, quants: { 'Q4_K_M': 15.5, 'Q5_K_M': 19.5, 'Q6_K': 23.4 }, examples: ['Qwen3.6-27B', 'Qwopus3.6-27B-v2'] }
     },
     // MoE models
     moe: {
@@ -1249,10 +1262,10 @@ const VALIDATED_PRESETS = [
         vram: 16,
         ram: 32,
         model: 'Qwen3.6-35B-A3B',
-        quant: 'UD-Q4_K_M',
+        quant: 'Q4_K_M',
         type: 'moe',
-        command: 'llama-server -m Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -ngl 99 --n-cpu-moe 16 --flash-attn auto -c 65536 -t 12 -b 512 --cache-type-k q8_0 --cache-type-v q8_0 --port 8080',
-        notes: 'n-cpu-moe 16-24: balance GPU/CPU. ~25-35 tok/s.',
+        command: 'llama-server -m Qwen3.6-35B-A3B-Q4_K_M.gguf -ngl 99 --n-cpu-moe 16 --flash-attn auto -c 65536 -t 12 -b 512 --cache-type-k q8_0 --cache-type-v q8_0 --port 8080',
+        notes: 'n-cpu-moe 16-24: balance GPU/CPU. ~25-35 tok/s. Q4_K_M = calidad trabajo real.',
         source: 'Codacus / Comunidad'
     },
     {
@@ -1658,9 +1671,9 @@ function generateRecommendations() {
             type: 'dense',
             size: 'large',
             params: 27,
-            quant: 'Q3_K_S',
-            modelSize: 11.5,
-            fit: calculateFit(vram, ram, 11.5, false, ctx.tokens),
+            quant: 'Q4_K_M',
+            modelSize: 15.5,
+            fit: calculateFit(vram, ram, 15.5, false, ctx.tokens),
             examples: MODEL_RECOMMENDATIONS.dense.large.examples,
             priority: 'alternative'
         });
@@ -2086,10 +2099,24 @@ function showFAQ() {
 ✅ Técnica de compresión de KV cache. K=turbo4, V=turbo2. 2-4x más contexto en el mismo VRAM.
 
 ❓ ¿Qué quantización elegir?
-✅ Q4_K_M = sweet spot calidad/tamaño para la mayoría.
-   IQ4_XS = mejor para MoE (imatrix).
-   Q3_K_S = si estás justo de VRAM.
-   Q6_K+ = solo si tienes VRAM de sobra.
+✅ Q4_K_M = MÍNIMO para trabajo real. Calidad profesional garantizada.
+   Q5_K_M / Q6_K = Si tienes VRAM de sobra. Mejor calidad, mismo modelo.
+   IQ4_XS = Sweet spot para MoE (importance matrix).
+   UD-Q4_K_XL = Unsloth Dynamic — mejor que Q4_K_M estándar.
+   
+   ⚠️ Q3_K_S / Q3_K_M = SOLO emergencia VRAM (≤4GB). Calidad degradada.
+   ❌ Q2_K = NUNCA para trabajo real. Solo testing/experimentación.
+
+❓ ¿Por qué Q4 es el mínimo?
+✅ Por debajo de Q4, los modelos:
+   - Pierden coherencia en respuestas largas
+   - Cometen errores factuales sutiles
+   - Generan código con bugs difíciles de detectar
+   - Fallan en razonamiento multi-paso
+   
+   Q4_K_M preserva ~95% de la calidad del modelo original.
+   Q3 preserva ~80% — suficiente para probar, no para producir.
+   Q2 preserva ~60% — inaceptable para cualquier uso serio.
 
 ❓ ¿Por qué mi modelo va lento?
 ✅ 1. Cierra browsers y apps con hardware accel.
