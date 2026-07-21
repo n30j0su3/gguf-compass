@@ -198,7 +198,7 @@ body::after {
     font-size: 0.875rem;
     border-radius: 0.5rem;
     cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
     overflow: hidden;
 }
@@ -232,7 +232,7 @@ body::after {
     color: var(--text-primary);
     font-size: 1.25rem;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -275,7 +275,7 @@ body::after {
     width: 600px; height: 600px;
     background: radial-gradient(circle, rgba(6,182,212,0.08) 0%, transparent 70%);
     pointer-events: none;
-    animation: heroPulse 4s ease-in-out infinite;
+    animation: heroPulse 3s ease-in-out infinite;
 }
 @keyframes heroPulse {
     0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
@@ -294,14 +294,14 @@ body::after {
     margin-bottom: 1.5rem;
     backdrop-filter: blur(8px);
     box-shadow: var(--shadow-sm);
-    animation: fadeInUp 0.6s ease-out;
+    animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .hero-badge .dot {
     width: 8px;
     height: 8px;
     background: var(--success);
     border-radius: 50%;
-    animation: pulseDot 2s ease-in-out infinite;
+    animation: pulseDot 1.6s ease-in-out infinite;
     box-shadow: 0 0 8px var(--success);
 }
 @keyframes pulseDot {
@@ -318,7 +318,7 @@ body::after {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: fadeInUp 0.6s ease-out 0.1s both;
+    animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.06s both;
     filter: drop-shadow(0 0 20px rgba(6,182,212,0.2));
 }
 .hero p {
@@ -326,14 +326,14 @@ body::after {
     color: var(--text-secondary);
     max-width: 640px;
     margin: 0 auto 2.5rem;
-    animation: fadeInUp 0.6s ease-out 0.2s both;
+    animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
 }
 .hero-stats {
     display: flex;
     justify-content: center;
     gap: 3rem;
     flex-wrap: wrap;
-    animation: fadeInUp 0.6s ease-out 0.3s both;
+    animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both;
 }
 .stat {
     text-align: center;
@@ -343,7 +343,7 @@ body::after {
     border-radius: 1rem;
     backdrop-filter: blur(8px);
     box-shadow: var(--shadow-sm);
-    transition: all 0.3s ease;
+    transition: all 0.18s ease;
     position: relative;
     overflow: hidden;
 }
@@ -354,7 +354,7 @@ body::after {
     height: 2px;
     background: linear-gradient(90deg, var(--primary), var(--accent));
     transform: scaleX(0);
-    transition: transform 0.3s ease;
+    transition: transform 0.18s ease;
 }
 .stat:hover::before { transform: scaleX(1); }
 .stat:hover {
@@ -438,7 +438,7 @@ body::after {
     font-size: 0.875rem;
     font-weight: 700;
     color: var(--text-muted);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
     box-shadow: var(--shadow-sm);
 }
@@ -471,7 +471,7 @@ body::after {
 /* Step content — Glass panels */
 .step-content {
     min-height: 400px;
-    animation: fadeInUp 0.4s ease-out;
+    animation: fadeInUp 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .step-title {
     font-size: 1.375rem;
@@ -497,7 +497,7 @@ body::after {
     border-radius: 1.25rem;
     padding: 1.5rem;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
     overflow: hidden;
     box-shadow: var(--shadow-sm);
@@ -510,7 +510,7 @@ body::after {
     background: linear-gradient(90deg, var(--primary), var(--accent), var(--accent-secondary));
     transform: scaleX(0);
     transform-origin: left;
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .option-card::after {
     content: '';
@@ -584,7 +584,7 @@ body::after {
     background: var(--bg-tertiary);
     border-radius: 1rem;
     border: 1px dashed var(--border-strong);
-    transition: all 0.3s ease;
+    transition: all 0.18s ease;
 }
 .custom-input-section:hover {
     border-color: var(--primary);
@@ -622,7 +622,7 @@ body::after {
     background: var(--bg-secondary);
     color: var(--text-primary);
     font-size: 1rem;
-    transition: all 0.25s ease;
+    transition: all 0.15s ease;
     box-shadow: var(--shadow-sm);
 }
 .input-group input:focus, .input-group select:focus {
@@ -649,7 +649,7 @@ body::after {
    ═══════════════════════════════════════════════════════════════════════════ */
 .results-section {
     padding: 2rem 0;
-    animation: fadeInUp 0.5s ease-out;
+    animation: fadeInUp 0.32s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .results-container {
     background: var(--bg-card);
@@ -684,7 +684,7 @@ body::after {
     font-weight: 600;
     font-size: 0.875rem;
     cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
     border: none;
     display: inline-flex;
     align-items: center;
@@ -742,7 +742,7 @@ body::after {
     padding: 1.75rem;
     margin-bottom: 1.25rem;
     box-shadow: var(--shadow-md);
-    transition: all 0.3s ease;
+    transition: all 0.18s ease;
     position: relative;
     overflow: hidden;
 }
@@ -881,7 +881,7 @@ body::after {
     font-size: 0.75rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: all 0.15s ease;
 }
 .copy-btn:hover {
     background: rgba(6,182,212,0.25);
@@ -922,7 +922,7 @@ body::after {
     display: flex;
     gap: 1rem;
     box-shadow: var(--shadow-sm);
-    transition: all 0.3s ease;
+    transition: all 0.18s ease;
 }
 .tip-card:hover {
     transform: translateY(-3px);
@@ -962,7 +962,7 @@ body::after {
 }
 .expert-panel.active {
     display: block;
-    animation: fadeInUp 0.4s ease-out;
+    animation: fadeInUp 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .expert-grid {
     display: grid;
@@ -975,7 +975,7 @@ body::after {
     padding: 1.5rem;
     border: 1px solid var(--border);
     box-shadow: var(--shadow-sm);
-    transition: all 0.3s ease;
+    transition: all 0.18s ease;
 }
 .expert-section:hover {
     box-shadow: var(--shadow-md);
@@ -1053,7 +1053,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
     background: var(--bg-secondary);
     border-radius: 13px;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
     border: 1px solid var(--border);
     flex-shrink: 0;
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
@@ -1072,7 +1072,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
     height: 20px;
     border-radius: 50%;
     background: white;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 .toggle-switch.active::after {
@@ -1104,7 +1104,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
     color: var(--text-secondary);
     text-decoration: none;
     font-size: 0.9375rem;
-    transition: all 0.25s ease;
+    transition: all 0.15s ease;
     font-weight: 500;
     position: relative;
 }
@@ -1147,7 +1147,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
    ANIMATIONS — FJSON MOTION SYSTEM
    ═══════════════════════════════════════════════════════════════════════════ */
 @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(20px); }
+    from { opacity: 0; transform: translateY(14px); }
     to { opacity: 1; transform: translateY(0); }
 }
 @keyframes fadeIn {
@@ -1162,9 +1162,9 @@ input[type="range"]::-webkit-slider-thumb:hover {
     0%, 100% { box-shadow: var(--shadow-md), 0 0 20px rgba(6,182,212,0.15); }
     50% { box-shadow: var(--shadow-md), 0 0 40px rgba(6,182,212,0.25); }
 }
-.fade-in { animation: fadeIn 0.4s ease-out; }
-.fade-in-up { animation: fadeInUp 0.5s ease-out; }
-.slide-in { animation: slideInLeft 0.4s ease-out; }
+.fade-in { animation: fadeIn 0.25s ease-out; }
+.fade-in-up { animation: fadeInUp 0.32s cubic-bezier(0.16, 1, 0.3, 1); }
+.slide-in { animation: slideInLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
 
 /* Staggered animation for grid items */
 .option-card:nth-child(1) { animation-delay: 0.05s; }
@@ -1195,6 +1195,174 @@ input[type="range"]::-webkit-slider-thumb:hover {
 ::selection {
     background: rgba(6, 182, 212, 0.3);
     color: var(--text-primary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   COMMAND PROFILES — Estable / Balanceado / Velocidad
+   ═══════════════════════════════════════════════════════════════════════════ */
+.cmd-profiles { margin-top: 0.25rem; }
+.cmd-profile-tabs {
+    display: flex;
+    gap: 0.375rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+}
+.cmd-tab {
+    padding: 0.4375rem 0.9375rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 0.625rem;
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cmd-tab:hover {
+    border-color: var(--primary);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+}
+.cmd-tab.active {
+    background: linear-gradient(135deg, rgba(6,182,212,0.2), rgba(34,211,238,0.12));
+    border-color: var(--primary);
+    color: var(--primary);
+    box-shadow: 0 0 14px rgba(6,182,212,0.2);
+}
+.cmd-profile-desc {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+    padding: 0.625rem 0.875rem;
+    background: var(--bg-tertiary);
+    border-left: 3px solid var(--primary);
+    border-radius: 0.5rem;
+    line-height: 1.5;
+}
+.cmd-variant { animation: fadeIn 0.2s ease-out; }
+
+/* Flag explainer */
+.flag-explainer {
+    margin-top: 0.625rem;
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    background: var(--bg-secondary);
+    overflow: hidden;
+}
+.flag-explainer summary {
+    padding: 0.625rem 1rem;
+    cursor: pointer;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.15s ease;
+    user-select: none;
+}
+.flag-explainer summary::before {
+    content: '▸';
+    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    color: var(--primary);
+}
+.flag-explainer[open] summary::before { transform: rotate(90deg); }
+.flag-explainer summary:hover { color: var(--primary); }
+.flag-chips {
+    display: grid;
+    gap: 0.5rem;
+    padding: 0.25rem 1rem 0.875rem;
+}
+.flag-chip {
+    display: grid;
+    grid-template-columns: minmax(140px, auto) 1fr;
+    gap: 0.75rem;
+    align-items: baseline;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-tertiary);
+    border-radius: 0.5rem;
+    font-size: 0.8125rem;
+}
+.flag-chip code {
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 0.75rem;
+    word-break: break-all;
+}
+.flag-chip .flag-name {
+    color: var(--text-primary);
+    font-weight: 600;
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.7;
+}
+.flag-chip p {
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
+}
+@media (max-width: 600px) {
+    .flag-chip { grid-template-columns: 1fr; gap: 0.25rem; }
+}
+
+/* Back to top */
+.back-to-top {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    border: none;
+    color: #050508;
+    font-size: 1.125rem;
+    font-weight: 800;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: var(--shadow-md), 0 0 20px rgba(6,182,212,0.3);
+    z-index: 90;
+}
+.back-to-top.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+.back-to-top:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg), 0 0 28px rgba(6,182,212,0.45); }
+
+/* Keyboard hint */
+.kbd-hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+.kbd-hint kbd {
+    padding: 0.125rem 0.375rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-strong);
+    border-bottom-width: 2px;
+    border-radius: 0.375rem;
+    font-family: inherit;
+    font-size: 0.6875rem;
+    color: var(--text-secondary);
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    html { scroll-behavior: auto; }
 }
 </style>
 </head>
@@ -1350,6 +1518,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
             <!-- Navigation -->
             <div style="display: flex; justify-content: space-between; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
                 <button class="btn btn-ghost" id="btn-prev" onclick="prevStep()" style="visibility: hidden;">← Anterior</button>
+                <span class="kbd-hint"><kbd>←</kbd><kbd>→</kbd> para navegar</span>
                 <button class="btn btn-primary" id="btn-next" onclick="nextStep()">Siguiente →</button>
             </div>
         </div>
@@ -1360,6 +1529,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
                 <div class="results-header">
                     <h2 class="results-title">🎯 Tu Configuración Recomendada</h2>
                     <div class="results-actions">
+                        <button class="btn btn-ghost" onclick="backToWizard()">← Ajustar selección</button>
                         <button class="btn btn-secondary" onclick="resetWizard()">↺ Nueva consulta</button>
                         <button class="btn btn-primary" onclick="copyAllCommands()">📋 Copiar todo</button>
                     </div>
@@ -1468,10 +1638,14 @@ input[type="range"]::-webkit-slider-thumb:hover {
                     </div>
                     <code id="expert-command-text"># Configura los sliders para generar tu comando</code>
                 </div>
+                <div id="expert-flag-explainer"></div>
             </div>
         </div>
     </div>
 </section>
+
+<!-- Back to top -->
+<button class="back-to-top" id="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Volver arriba">↑</button>
 
 <!-- Footer -->
 <footer class="footer">
@@ -1698,9 +1872,11 @@ function setMode(mode) {
     if (mode === 'wizard') {
         wizardSection.classList.remove('hidden');
         expertPanel.classList.remove('active');
+        wizardSection.scrollIntoView({ behavior: 'smooth' });
     } else {
         wizardSection.classList.add('hidden');
         expertPanel.classList.add('active');
+        expertPanel.scrollIntoView({ behavior: 'smooth' });
     }
 }
 
@@ -1904,6 +2080,13 @@ function updateStepDots() {
     });
 }
 
+function backToWizard() {
+    // Vuelve al wizard conservando la selección actual para ajustarla
+    document.getElementById('results-section').classList.add('hidden');
+    document.querySelector('.wizard-container').classList.remove('hidden');
+    document.getElementById('wizard-section').scrollIntoView({ behavior: 'smooth' });
+}
+
 function resetWizard() {
     state.step = 1;
     state.hardware = { vram: null, ram: null, cores: null, type: null };
@@ -2065,7 +2248,129 @@ function generateRecommendations() {
     return recommendations;
 }
 
-function generateCommand(rec, tool, useCase, ctx) {
+// ═══════════════════════════════════════════════════════════════════════════
+// COMMAND PROFILES & FLAG KNOWLEDGE BASE
+// ═══════════════════════════════════════════════════════════════════════════
+const PROFILE_META = {
+    estable: {
+        icon: '🛡️',
+        label: 'Estable',
+        desc: 'Máxima calidad y robustez: KV cache en alta precisión (q8_0), batches conservadores, mlock agresivo y sin speculative decoding. Ideal para producción, respuestas largas y trabajo crítico donde un error cuesta más que la velocidad.'
+    },
+    balanceado: {
+        icon: '⚖️',
+        label: 'Balanceado',
+        desc: 'Equilibrio calidad/velocidad validado en benchmarks reales. KV cuantizado solo en contextos largos, speculative decoding moderado para coding. El punto de partida recomendado para el 90% de usuarios.'
+    },
+    velocidad: {
+        icon: '🚀',
+        label: 'Velocidad',
+        desc: 'Máximo squeeze de tokens/seg: KV cache q4_0 siempre, batches grandes (-b 1024), speculative decoding agresivo y cache-reuse extendido. Pequeño trade-off de calidad a cambio de la mejor experiencia interactiva.'
+    }
+};
+
+const FLAG_INFO = {
+    '-m': { name: 'Modelo', desc: 'Ruta al archivo GGUF. El cerebro de la operación — todo lo demás son ajustes sobre cómo cargarlo y ejecutarlo.' },
+    '-ngl': { name: 'GPU Layers', desc: 'Capas del modelo que van a la GPU. 99 = todo en VRAM (máxima velocidad). Un valor menor offloadea el resto a CPU/RAM.' },
+    '--n-cpu-moe': { name: 'MoE CPU Offload', desc: 'Número de capas de expertos MoE que se quedan en RAM/CPU. La clave para correr MoEs grandes (35B+) con poca VRAM sin que se arrastre.' },
+    '-c': { name: 'Contexto', desc: 'Tokens de memoria de la conversación. Más contexto = más VRAM ocupada por el KV cache. No pongas 128k si solo necesitas 8k.' },
+    '-t': { name: 'Threads', desc: 'Hilos de CPU para las capas fuera de GPU. Usa tus cores físicos (no lógicos) para mejor throughput.' },
+    '-b': { name: 'Batch Size', desc: 'Tokens procesados por lote al ingerir el prompt. Batches grandes = prompts largos procesados mucho más rápido.' },
+    '-ub': { name: 'Micro-batch', desc: 'Subdivisión física del batch. 512 es el sweet spot para la mayoría de GPUs consumer.' },
+    '--no-mmap': { name: 'No Memory-Map', desc: 'Carga el modelo completo en RAM en vez de mapearlo desde disco. Carga más rápida y sin stuttering, a costa de más RAM residente.' },
+    '--mlock': { name: 'Memory Lock', desc: 'Bloquea el modelo en RAM para que el SO nunca lo mande a swap. Esencial cuando haces offload parcial — un swap mata el rendimiento.' },
+    '--cache-type-k': { name: 'KV Cache K', desc: 'Cuantización del cache de Keys. q4_0 ahorra ~60% de VRAM de contexto; q8_0 es el punto calidad/ahorro; f16 (default) = máxima calidad.' },
+    '--cache-type-v': { name: 'KV Cache V', desc: 'Cuantización del cache de Values. Mismo criterio que K. Juntos pueden duplicar tu contexto efectivo en la misma VRAM.' },
+    '--flash-attn': { name: 'Flash Attention', desc: 'Kernel de atención optimizado: menos VRAM y más velocidad, sobre todo en contextos largos. Recomendado siempre que el modelo lo soporte.' },
+    '--spec-type': { name: 'Speculative Decoding', desc: 'El modelo predice varios tokens por pasada (MTP/draft) y los verifica en batch. Hasta +75% de velocidad en código y texto estructurado.' },
+    '--spec-draft-n-max': { name: 'Draft Max', desc: 'Máximo de tokens que el draft predice por pasada. Más alto = más velocidad potencial, más tokens rechazados.' },
+    '--spec-draft-n-min': { name: 'Draft Min', desc: 'Mínimo de tokens draft que se intentan antes de verificar. 1 = verificación inmediata, el modo más seguro.' },
+    '--cache-reuse': { name: 'Cache Reuse', desc: 'Reutiliza el KV cache de turnos anteriores cuando el prompt comparte prefijo. Acelera chats multi-turno y sesiones de agente.' },
+    '--port': { name: 'Puerto', desc: 'Puerto del servidor HTTP de llama-server. Expone una API OpenAI-compatible en /v1 para conectar tus apps.' },
+    '--quantization': { name: 'Quantización (vLLM)', desc: 'Formato de pesos con el que vLLM carga el modelo. Debe coincidir con el artifact descargado.' },
+    '--max-model-len': { name: 'Max Length (vLLM)', desc: 'Contexto máximo que vLLM reserva al arrancar. Impacta directamente la VRAM ocupada por el KV cache.' },
+    '--gpu-memory-utilization': { name: 'GPU Mem (vLLM)', desc: 'Fracción de VRAM que vLLM puede usar. 0.85 deja margen para el SO, el compositor y otras apps.' }
+};
+
+function renderFlagExplainer(cmd) {
+    const found = [];
+    const seen = new Set();
+    const matches = cmd.match(/--?[a-zA-Z][a-zA-Z0-9-]*/g) || [];
+    matches.forEach(flag => {
+        if (FLAG_INFO[flag] && !seen.has(flag)) {
+            seen.add(flag);
+            found.push({ flag, ...FLAG_INFO[flag] });
+        }
+    });
+    if (!found.length) return '';
+    return `
+        <details class="flag-explainer">
+            <summary>¿Qué hace cada flag? (${found.length} explicados)</summary>
+            <div class="flag-chips">
+                ${found.map(f => `
+                    <div class="flag-chip">
+                        <div><code>${f.flag}</code><span class="flag-name">${f.name}</span></div>
+                        <p>${f.desc}</p>
+                    </div>
+                `).join('')}
+            </div>
+        </details>
+    `;
+}
+
+function switchCmdTab(idx, profile, btn) {
+    const card = btn.closest('.cmd-profiles');
+    card.querySelectorAll('.cmd-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    card.querySelectorAll('.cmd-variant').forEach(v => v.classList.add('hidden'));
+    card.querySelector(`#cmd-variant-${idx}-${profile}`).classList.remove('hidden');
+    document.getElementById(`cmd-desc-${idx}`).textContent = PROFILE_META[profile].desc;
+}
+
+function renderCommandSection(rec, tool, useCase, ctx, idx) {
+    const isLlama = tool.id === 'llamacpp' || tool.id === 'ikllamacpp';
+    if (!isLlama) {
+        const cmd = generateCommand(rec, tool.id, useCase, ctx);
+        return `
+            <div class="command-output">
+                <div class="command-output-header">
+                    <span class="command-output-title">${tool.label} — Comando sugerido</span>
+                    <button class="copy-btn" onclick="copyCommand(${idx})">Copiar</button>
+                </div>
+                <code id="cmd-${idx}">${cmd}</code>
+            </div>
+            ${renderFlagExplainer(cmd)}
+        `;
+    }
+    const profiles = ['estable', 'balanceado', 'velocidad'];
+    const tabs = profiles.map(p => `
+        <button class="cmd-tab ${p === 'balanceado' ? 'active' : ''}" onclick="switchCmdTab(${idx}, '${p}', this)">${PROFILE_META[p].icon} ${PROFILE_META[p].label}</button>
+    `).join('');
+    const variants = profiles.map(p => {
+        const cmd = generateCommand(rec, tool.id, useCase, ctx, p);
+        return `
+            <div class="cmd-variant ${p === 'balanceado' ? '' : 'hidden'}" id="cmd-variant-${idx}-${p}">
+                <div class="command-output">
+                    <div class="command-output-header">
+                        <span class="command-output-title">${tool.label} — Perfil ${PROFILE_META[p].icon} ${PROFILE_META[p].label}</span>
+                        <button class="copy-btn" onclick="copyCommand('${idx}-${p}')">Copiar</button>
+                    </div>
+                    <code id="cmd-${idx}-${p}">${cmd}</code>
+                </div>
+                ${renderFlagExplainer(cmd)}
+            </div>
+        `;
+    }).join('');
+    return `
+        <div class="cmd-profiles">
+            <div class="cmd-profile-tabs">${tabs}</div>
+            <div class="cmd-profile-desc" id="cmd-desc-${idx}">${PROFILE_META.balanceado.desc}</div>
+            ${variants}
+        </div>
+    `;
+}
+
+function generateCommand(rec, tool, useCase, ctx, profile = 'balanceado') {
     const { vram, ram, cores } = state.hardware;
     const threads = cores || Math.max(4, navigator.hardwareConcurrency - 2);
     
@@ -2089,30 +2394,43 @@ function generateCommand(rec, tool, useCase, ctx) {
         // Threads
         cmd += `  -t ${threads} \\\n`;
         
-        // Batch size
-        cmd += `  -b 512 \\\n`;
+        // Batch size (profile-driven)
+        if (profile === 'estable') {
+            cmd += `  -b 256 \\\n`;
+        } else if (profile === 'velocidad') {
+            cmd += `  -b 1024 -ub 512 \\\n`;
+        } else {
+            cmd += `  -b 512 \\\n`;
+        }
         
         // Memory flags
         if (rec.fit.fit !== 'full-gpu') {
             cmd += `  --no-mmap \\\n`;
-            if (ram >= 32) cmd += `  --mlock \\\n`;
+            const mlockThreshold = profile === 'estable' ? 16 : 32;
+            if (profile !== 'velocidad' && ram >= mlockThreshold) cmd += `  --mlock \\\n`;
         }
         
-        // KV cache
-        if (ctx.tokens > 8192) {
+        // KV cache (profile-driven)
+        if (profile === 'velocidad') {
+            cmd += `  --cache-type-k q4_0 --cache-type-v q4_0 \\\n`;
+        } else if (profile === 'estable') {
+            if (ctx.tokens > 8192) cmd += `  --cache-type-k q8_0 --cache-type-v q8_0 \\\n`;
+        } else if (ctx.tokens > 8192) {
             cmd += `  --cache-type-k q4_0 --cache-type-v q4_0 \\\n`;
         }
         
         // Flash attention
-        cmd += `  --flash-attn auto \\\n`;
+        cmd += profile === 'velocidad' ? `  --flash-attn on \\\n` : `  --flash-attn auto \\\n`;
         
         // Speculative decoding for coding
-        if (useCase.id === 'coding' && rec.type === 'dense' && rec.fit.fit === 'full-gpu') {
-            cmd += `  --spec-type draft-mtp \\\n  --spec-draft-n-max 2 \\\n  --spec-draft-n-min 1 \\\n`;
+        if (profile !== 'estable' && useCase.id === 'coding' && rec.type === 'dense' && rec.fit.fit === 'full-gpu') {
+            const specMax = profile === 'velocidad' ? 4 : 2;
+            cmd += `  --spec-type draft-mtp \\\n  --spec-draft-n-max ${specMax} \\\n  --spec-draft-n-min 1 \\\n`;
         }
         
-        // Cache reuse
-        cmd += `  --cache-reuse 256 \\\n`;
+        // Cache reuse (profile-driven)
+        const cacheReuse = profile === 'estable' ? 128 : profile === 'velocidad' ? 512 : 256;
+        cmd += `  --cache-reuse ${cacheReuse} \\\n`;
         
         // Port
         cmd += `  --port 8080`;
@@ -2172,12 +2490,12 @@ function generateResults() {
                     </div>
                     <code id="preset-cmd">${state.preset.command}</code>
                 </div>
+                ${renderFlagExplainer(state.preset.command)}
             </div>
         `;
     }
     
     state.results.forEach((rec, idx) => {
-        const cmd = generateCommand(rec, tool.id, useCase, ctx);
         const fitBadge = rec.fit.fit === 'full-gpu' ? 'success' : rec.fit.fit === 'moe-offload' ? 'warning' : 'danger';
         
         html += `
@@ -2214,13 +2532,7 @@ function generateResults() {
                     💡 ${rec.fit.recommendation}
                 </p>
                 
-                <div class="command-output">
-                    <div class="command-output-header">
-                        <span class="command-output-title">${tool.label} — Comando sugerido</span>
-                        <button class="copy-btn" onclick="copyCommand(${idx})">Copiar</button>
-                    </div>
-                    <code id="cmd-${idx}">${cmd}</code>
-                </div>
+                ${renderCommandSection(rec, tool, useCase, ctx, idx)}
             </div>
         `;
     });
@@ -2364,6 +2676,7 @@ function updateExpert() {
         : `# ⚠ Modelo excede VRAM (${modelSize.toFixed(1)}GB / ${vram}GB) — offloading activado`;
     
     document.getElementById('expert-command-text').textContent = fitComment + '\n' + cmd;
+    document.getElementById('expert-flag-explainer').innerHTML = renderFlagExplainer(cmd);
 }
 
 function copyExpertCommand() {
@@ -2399,7 +2712,7 @@ function copyPresetCommand() {
 function copyAllCommands() {
     const commands = [];
     document.querySelectorAll('.command-output code').forEach(code => {
-        commands.push(code.textContent);
+        if (code.offsetParent !== null) commands.push(code.textContent);
     });
     navigator.clipboard.writeText(commands.join('\n\n' + '='.repeat(50) + '\n\n')).then(() => {
         const btn = document.querySelector('.results-actions .btn-primary');
@@ -2502,6 +2815,21 @@ function showFAQ() {
 
     alert(faqText);
 }
+// ═══════════════════════════════════════════════════════════════════════════
+// UX ENHANCEMENTS — Keyboard nav + Back-to-top
+// ═══════════════════════════════════════════════════════════════════════════
+document.addEventListener('keydown', (e) => {
+    if (state.mode !== 'wizard') return;
+    if (e.target.matches('input, select, textarea')) return;
+    const resultsVisible = !document.getElementById('results-section').classList.contains('hidden');
+    if (resultsVisible) return;
+    if (e.key === 'ArrowRight' || e.key === 'Enter') { e.preventDefault(); nextStep(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prevStep(); }
+});
+
+window.addEventListener('scroll', () => {
+    document.getElementById('back-to-top').classList.toggle('visible', window.scrollY > 600);
+}, { passive: true });
 </script>
 
 </body>
