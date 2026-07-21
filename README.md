@@ -1,9 +1,12 @@
+<p align="center"><img src="assets/freakingjson-logo.png" width="92" alt="FreakingJSON"></p>
+
 # 🧭 GGUF Compass
 
-> **Tu brújula para LLMs locales.** Hardware → Modelo → Flags en 30 segundos.
+> **Tu brújula para LLMs locales.** Hardware → Modelo → Flags en 30 segundos. Hecho por [FreakingJSON](https://freakingjson.com).
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![Live](https://img.shields.io/badge/demo-live-06b6d4.svg)](https://n30j0su3.github.io/gguf-compass/)
 [![GitHub stars](https://img.shields.io/github/stars/n30j0su3/gguf-compass?style=social)](https://github.com/n30j0su3/gguf-compass)
 
 ---
@@ -29,7 +32,7 @@ Todo desde un **single-file HTML** que puedes abrir en tu navegador. Sin instala
 | ⚡ **Modo Experto** | Todos los knobs visibles. Sliders, toggles, comando generado en tiempo real |
 | 🧩 **MoE Offloading** | Calcula `--n-cpu-moe` óptimo para correr 35B en 6GB VRAM |
 | 🚀 **MTP / Spec Dec** | Cuándo usar Multi-Token Prediction y cuándo evitarlo |
-| 💾 **KV Cache Quant** | TurboQuant, q4_0, trade-offs de contexto vs velocidad |
+| 💾 **KV Cache segura** | q8_0 para upstream; Turbo4/3 solo con runtime TurboQuant compatible; nunca q4_0 |
 | 🔧 **5 Herramientas** | llama.cpp, LM Studio, Ollama, ik_llama.cpp, vLLM |
 | 🌙 **Dark/Light Mode** | Tema persistente en localStorage |
 | 📱 **Responsive** | Funciona en desktop, tablet y móvil |
@@ -97,132 +100,71 @@ El comando se genera en tiempo real.
 
 ---
 
-## 📚 Casos de Uso Reales
+## 📚 Cómo interpretar presets y resultados
 
-### Caso 1: GTX 1060 6GB + 24GB RAM (el legendario Codacus setup)
+GGUF Compass separa tres niveles de evidencia:
 
-```
-Modelo: Qwen3.6-35B-A3B (MoE)
-Quantización: IQ4_XS
-Estrategia: MoE CPU Offloading
-Flags clave:
-  -ngl 99
-  --n-cpu-moe 20
-  --no-mmap
-  --mlock
-  --cache-type-k q4_0 --cache-type-v q4_0
-  -c 8192
-  -t 4
+| Nivel | Significa |
+|---|---|
+| ✅ **Validado FJSON** | Ejecutado por FreakingJSON con hardware/modelo/runtime identificados |
+| 👥 **Receta comunitaria** | Configuración atribuida a una fuente externa; puede variar en otro equipo |
+| 🧮 **Estimación del wizard** | Cálculo para empezar; no es un benchmark ni promete tok/s |
 
-Resultado: ~17 tok/s — production-stable
-```
+Los comandos se adaptan al runtime seleccionado. En particular:
 
-### Caso 2: RTX 3060 12GB (sweet spot budget)
+```bash
+# llama.cpp oficial — compatible con upstream
+--cache-type-k q8_0 --cache-type-v q8_0
 
-```
-Modelo: Qwen3.5-9B (Dense)
-Quantización: Q4_K_M
-Estrategia: Full GPU
-Flags clave:
-  -ngl 99
-  -c 16384
-  -t 8
-  -b 512
-  --flash-attn auto
-  --spec-type draft-mtp --spec-draft-n-max 2
-
-Resultado: ~70 tok/s — coding assistant perfecto
+# TurboQuant / ik_llama.cpp — solo en build compatible
+--cache-type-k turbo4 --cache-type-v turbo3
 ```
 
-### Caso 3: RTX 4090 24GB (high-end consumer)
+> **Nunca sugerimos KV q4_0.** Puede degradar coherencia y favorecer loops en respuestas largas. Si un comando antiguo del ecosistema lo incluye, sustitúyelo por q8_0/q8_0 o usa Turbo4/3 únicamente en el fork compatible.
 
-```
-Modelo: Qwen3.6-27B (Dense)
-Quantización: Q4_K_M
-Estrategia: Full GPU
-Flags clave:
-  -ngl 99
-  -c 32768
-  -t 16
-  -b 512
-  --flash-attn auto
-  --cache-type-k q4_0 --cache-type-v q4_0
+### Lo que más cambia el resultado
 
-Resultado: ~45 tok/s — razonamiento profundo
-```
-
-### Caso 4: Apple M2 Max 64GB (unified memory)
-
-```
-Modelo: Qwen3.6-35B-A3B (MoE)
-Quantización: Q4_K_M
-Estrategia: Full GPU (unified memory)
-Flags clave:
-  -ngl 99
-  -c 131072
-  -t 12
-  --cache-type-k q4_0 --cache-type-v q4_0
-  --no-mmap
-
-Resultado: ~25 tok/s + 128K context — best of both worlds
-```
+1. **Modelo exacto y quant:** no asumas que todos los “27B Q4” pesan o rinden igual.
+2. **Contexto real:** 128K reserva mucha más KV cache que 8K; el máximo del modelo no es una meta.
+3. **Slots paralelos:** en `llama-server`, `-c` es contexto total compartido entre slots.
+4. **CPU/RAM:** `--n-cpu-moe` reduce VRAM, pero convierte RAM/CPU en parte crítica del rendimiento.
+5. **Build/backend:** CUDA, Vulkan y Metal tienen capacidades distintas; TurboQuant no es upstream.
 
 ---
 
 ## 🧩 ¿Qué es MoE y por qué importa?
 
-**MoE (Mixture of Experts)** es una arquitectura donde el modelo tiene muchos "expertos" pero solo activa unos pocos por token.
+**MoE (Mixture of Experts)** activa solo una parte de sus expertos por token. Puede ofrecer una buena relación capacidad/coste de cómputo, pero los pesos totales siguen necesitando VRAM o RAM.
 
-| Aspecto | Dense | MoE |
-|---------|-------|-----|
-| Parámetros totales | 9B | 35B |
-| Parámetros activos | 9B | ~3B |
-| Velocidad | 1x | ~3x más rápido |
-| Calidad | Baseline | Similar o mejor |
-| VRAM para weights | Todo | Solo backbone + expertos en CPU |
-
-**El truco:** Con `--n-cpu-moe`, llama.cpp pone los expertos en RAM y solo el backbone en VRAM. Así un 35B cabe en 6GB VRAM.
+`--n-cpu-moe N` mantiene los expertos de las primeras N capas en CPU/RAM. Es útil cuando falta VRAM, con un trade-off claro: la velocidad pasa a depender del CPU y del ancho de banda de memoria. Un MoE no es automáticamente más rápido ni mejor que un dense.
 
 ---
 
-## 🚀 Técnicas de Optimización
+## 🚀 Técnicas de optimización seguras
 
 ### 1. MTP (Multi-Token Prediction)
-
-Speculative decoding **nativo del modelo**. El modelo predice múltiples tokens ahead y los verifica en batch.
 
 ```bash
 --spec-type draft-mtp --spec-draft-n-max 2 --spec-draft-n-min 1
 ```
 
-- ✅ **Coding:** +67-75% velocidad
-- ✅ **Short context (<4K):** Ideal
-- ❌ **Long context (>8K):** Sin beneficio (prefill domina)
-- ❌ **MoE:** No funciona bien
+Úsalo solo si el modelo incluye heads MTP y tu build los soporta. GGUF Compass no lo activa en modelos genéricos. La ganancia depende de la aceptación del draft y de la tarea.
 
-### 2. KV Cache Quantization
-
-Comprime la memoria de contexto 4x:
+### 2. KV cache en llama.cpp oficial
 
 ```bash
---cache-type-k q4_0 --cache-type-v q4_0
+--cache-type-k q8_0 --cache-type-v q8_0
 ```
 
-- ✅ **Long context:** Duplica tokens máximos
-- ✅ **Zero quality loss** (validado empíricamente)
-- ❌ **iq4_nl:** Requiere Flash Attention
+Es el fallback conservador para contexto largo. Upstream también soporta otros tipos, pero este proyecto evita q4_0 por su riesgo de degradación y repetición.
 
-### 3. TurboQuant (fork TheTom/llama-cpp-turboquant)
-
-KV cache compression avanzada:
+### 3. TurboQuant (runtime compatible)
 
 ```bash
---cache-type-k turbo4 --cache-type-v turbo2
+--cache-type-k turbo4 --cache-type-v turbo3
 ```
 
-- ✅ K=turbo4 (near-lossless keys)
-- ✅ V=turbo2 (compressed values)
-- ✅ 2-4x más contexto en mismo VRAM
+Es la configuración validada por FJSON en MiniV, pero **no existe en llama.cpp upstream**. Debes elegir el runtime TurboQuant/ik_llama.cpp en el wizard. Si la ayuda de tu binario no lista `turbo4` y `turbo3`, usa q8_0/q8_0.
 
 ### 4. Flash Attention
 
@@ -230,9 +172,13 @@ KV cache compression avanzada:
 --flash-attn auto
 ```
 
-- ✅ Menos VRAM para attention
-- ✅ Más rápido en GPUs modernas
-- ✅ Auto-detecta si tu GPU lo soporta
+`auto` es el default seguro: el runtime usa el kernel cuando el backend/modelo lo permite y evita forzar una ruta incompatible.
+
+### 5. Seguridad de red
+
+`llama-server` escucha en `127.0.0.1` por defecto. Si lo expones con `--host 0.0.0.0`, protege el acceso con `--api-key-file`, firewall y CORS limitado. No habilites herramientas/agente en redes no confiables.
+
+Fuente primaria: [llama.cpp — server README](https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md).
 
 ---
 
@@ -240,18 +186,18 @@ KV cache compression avanzada:
 
 | Herramienta | Tipo | Ideal para | Comando generado |
 |-------------|------|-----------|------------------|
-| **llama.cpp** | CLI | Control total, benchmarking | ✅ Sí |
+| **llama.cpp oficial** | CLI | Compatibilidad upstream, control total | ✅ Sí; KV q8_0 |
 | **LM Studio** | GUI | Principiantes, Windows/Mac | Instrucciones |
-| **Ollama** | CLI | Simplicidad, Docker-like | ✅ Sí |
-| **ik_llama.cpp** | CLI | MoE optimizations extras | ✅ Sí |
-| **vLLM** | Python | Datacenter, alta concurrencia | ✅ Sí |
+| **Ollama** | CLI | Gestión simple de modelos | ✅ Comando básico |
+| **TurboQuant / ik_llama.cpp** | CLI | KV Turbo4/3 y optimización avanzada | ✅ Sí; requiere fork compatible |
+| **vLLM** | Python | Linux/CUDA, alta concurrencia | ✅ Solo modelos/formats compatibles |
 
 ---
 
 ## 📖 Documentación
 
-- [Knowledge Base](docs/knowledge-base.md) — Todo el conocimiento extraído de Codacus, llama.cpp docs, y nuestra investigación
-- [Presets](docs/presets.md) — Configuraciones validadas por hardware tier
+- [Knowledge Base](docs/knowledge-base.md) — Políticas de quantización, KV, MoE y seguridad con compatibilidad por runtime
+- [Live demo](https://n30j0su3.github.io/gguf-compass/) — Wizard y panel experto
 - [Contributing](CONTRIBUTING.md) — Cómo contribuir al proyecto
 
 ---
@@ -286,11 +232,18 @@ MIT License — ver [LICENSE](LICENSE) para detalles.
 
 ---
 
-## 🔗 Links
+## 🔗 FreakingJSON
 
-- **GitHub:** https://github.com/n30j0su3/gguf-compass
-- **Issues:** https://github.com/n30j0su3/gguf-compass/issues
-- **Discussions:** https://github.com/n30j0su3/gguf-compass/discussions
+- **Web:** https://freakingjson.com
+- **GitHub:** https://github.com/n30j0su3
+- **YouTube:** https://youtube.com/@freakingjson
+- **Instagram:** https://instagram.com/freakingjson
+- **TikTok:** https://tiktok.com/@freakingjson
+- **Todas las redes:** https://linktr.ee/freakingjson
+- **Apoyar:** https://buymeacoffee.com/freakingjson
+- **Proyecto / Issues:** https://github.com/n30j0su3/gguf-compass/issues
+
+© 2026 FreakingJSON · MIT · Sin telemetría, cookies, analytics ni backend.
 
 ---
 

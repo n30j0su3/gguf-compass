@@ -4,14 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GGUF Compass — Tu brújula para LLMs locales</title>
-<meta name="description" content="Encuentra la configuración perfecta para correr modelos de IA locales según tu hardware. MoE offloading, MTP, TurboQuant, presets y más.">
-<meta property="og:title" content="GGUF Compass">
-<meta property="og:description" content="Tu brújula para LLMs locales. Hardware → Modelo → Flags en 30 segundos.">
+<meta name="description" content="Configura LLMs locales según tu hardware con recomendaciones explicadas, perfiles seguros y compatibilidad por runtime. Open source por FreakingJSON.">
+<meta name="author" content="FreakingJSON">
+<meta name="copyright" content="© 2026 FreakingJSON — MIT License">
+<link rel="canonical" href="https://n30j0su3.github.io/gguf-compass/">
+<meta property="og:title" content="GGUF Compass — por FreakingJSON">
+<meta property="og:description" content="Hardware → Modelo → Runtime → Flags explicados. Gratis, privado y open source.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://n30j0su3.github.io/gguf-compass/">
 <meta property="og:image" content="https://n30j0su3.github.io/gguf-compass/assets/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://n30j0su3.github.io/gguf-compass/assets/og-image.png">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🧭</text></svg>">
+<link rel="icon" type="image/png" href="assets/freakingjson-logo.png">
 <style>
 /* ═══════════════════════════════════════════════════════════════════════════
    GGUF COMPASS — FJSON STYLE: CYBERPUNK GLASS + MATRIX DEPTH
@@ -266,6 +270,7 @@ body::after {
     padding: 5rem 0 4rem;
     text-align: center;
     position: relative;
+    overflow: clip;
 }
 .hero::before {
     content: '';
@@ -1167,17 +1172,15 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .slide-in { animation: slideInLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
 
 /* Staggered animation for grid items */
-.option-card:nth-child(1) { animation-delay: 0.05s; }
-.option-card:nth-child(2) { animation-delay: 0.1s; }
-.option-card:nth-child(3) { animation-delay: 0.15s; }
-.option-card:nth-child(4) { animation-delay: 0.2s; }
-.option-card:nth-child(5) { animation-delay: 0.25s; }
-.option-card:nth-child(6) { animation-delay: 0.3s; }
-.option-card:nth-child(7) { animation-delay: 0.35s; }
-.option-card:nth-child(8) { animation-delay: 0.4s; }
-.option-card:nth-child(9) { animation-delay: 0.45s; }
-.option-card:nth-child(10) { animation-delay: 0.5s; }
-.option-card:nth-child(11) { animation-delay: 0.55s; }
+.option-card:nth-child(1) { animation-delay: 0.02s; }
+.option-card:nth-child(2) { animation-delay: 0.04s; }
+.option-card:nth-child(3) { animation-delay: 0.06s; }
+.option-card:nth-child(4) { animation-delay: 0.08s; }
+.option-card:nth-child(5) { animation-delay: 0.10s; }
+.option-card:nth-child(6) { animation-delay: 0.12s; }
+.option-card:nth-child(7) { animation-delay: 0.14s; }
+.option-card:nth-child(8) { animation-delay: 0.16s; }
+.option-card:nth-child(n+9) { animation-delay: 0.18s; }
 
 /* Utility classes */
 .hidden { display: none !important; }
@@ -1355,6 +1358,63 @@ input[type="range"]::-webkit-slider-thumb:hover {
     color: var(--text-secondary);
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   FREAKINGJSON IDENTITY + USER KNOWLEDGE LAYER
+   ═══════════════════════════════════════════════════════════════════════════ */
+.brand-lockup { display:flex; align-items:center; gap:.7rem; color:var(--text-primary); text-decoration:none; }
+.brand-logo { width:38px; height:38px; padding:3px; object-fit:contain; border-radius:9px; background:rgba(242,252,158,.08); filter:brightness(1.8) contrast(1.15) drop-shadow(0 0 10px rgba(242,252,158,.3)); }
+.brand-copy { display:flex; flex-direction:column; line-height:1.05; }
+.brand-copy strong { font-size:1rem; letter-spacing:-.02em; }
+.brand-copy small { margin-top:.28rem; color:var(--text-muted); font-size:.64rem; letter-spacing:.12em; text-transform:uppercase; }
+.header-nav { display:flex; align-items:center; gap:.2rem; }
+.header-nav a { padding:.42rem .58rem; color:var(--text-secondary); text-decoration:none; border-radius:.45rem; font-size:.75rem; font-weight:650; transition:all .15s cubic-bezier(.16,1,.3,1); }
+.header-nav a:hover { color:var(--primary); background:rgba(6,182,212,.08); }
+.knowledge-section { padding:0 0 3rem; }
+.knowledge-shell { border:1px solid var(--border); background:linear-gradient(145deg,rgba(15,23,42,.76),rgba(8,15,27,.62)); border-radius:1.25rem; padding:1.3rem; box-shadow:var(--shadow-md); }
+[data-theme="light"] .knowledge-shell { background:linear-gradient(145deg,rgba(255,255,255,.92),rgba(241,245,249,.88)); }
+.knowledge-heading { display:flex; justify-content:space-between; gap:1rem; align-items:flex-end; margin-bottom:1rem; }
+.knowledge-heading h2 { font-size:1.2rem; margin:0; }
+.knowledge-heading p { color:var(--text-secondary); font-size:.84rem; margin:.3rem 0 0; }
+.source-link { color:var(--primary); font-size:.72rem; text-decoration:none; white-space:nowrap; }
+.decision-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:.75rem; }
+.decision-card { padding:.95rem; background:var(--bg-tertiary); border:1px solid var(--border); border-radius:.85rem; }
+.decision-card .decision-num { display:inline-grid; place-items:center; width:1.55rem; height:1.55rem; border-radius:50%; background:rgba(6,182,212,.12); color:var(--primary); font-size:.72rem; font-weight:800; }
+.decision-card h3 { font-size:.86rem; margin:.55rem 0 .35rem; }
+.decision-card p { color:var(--text-secondary); font-size:.76rem; line-height:1.55; margin:0; }
+.trust-strip { display:grid; grid-template-columns:repeat(3,1fr); gap:.65rem; margin-top:.8rem; }
+.trust-item { display:flex; gap:.55rem; align-items:flex-start; padding:.72rem .8rem; border-radius:.75rem; background:rgba(6,182,212,.055); border:1px solid rgba(6,182,212,.13); }
+.trust-item strong { display:block; font-size:.75rem; }
+.trust-item span { display:block; color:var(--text-muted); font-size:.68rem; line-height:1.4; margin-top:.15rem; }
+.runtime-notice { display:flex; gap:.7rem; padding:.8rem .9rem; margin:.75rem 0; border-radius:.7rem; border:1px solid rgba(245,158,11,.28); background:rgba(245,158,11,.07); color:var(--text-secondary); font-size:.78rem; line-height:1.5; }
+.runtime-notice strong { color:var(--warning); }
+.evidence-badge { display:inline-flex; align-items:center; gap:.28rem; padding:.22rem .48rem; border-radius:999px; font-size:.63rem; font-weight:750; letter-spacing:.03em; text-transform:uppercase; }
+.evidence-validated { color:var(--success); background:rgba(52,211,153,.12); }
+.evidence-community { color:var(--warning); background:rgba(245,158,11,.12); }
+.evidence-estimated { color:var(--text-secondary); background:var(--bg-tertiary); }
+.about-section { padding:3rem 0 1rem; }
+.about-grid { display:grid; grid-template-columns:1.15fr 1.85fr; gap:1rem; }
+.fjson-card,.faq-card { border:1px solid var(--border); border-radius:1.15rem; background:var(--bg-secondary); padding:1.25rem; }
+.fjson-card-header { display:flex; gap:.9rem; align-items:center; }
+.fjson-card-logo { width:64px; height:64px; padding:5px; object-fit:contain; border-radius:14px; background:rgba(242,252,158,.07); filter:brightness(1.8) contrast(1.15) drop-shadow(0 0 12px rgba(242,252,158,.24)); }
+.fjson-card h2,.faq-card h2 { font-size:1.1rem; margin:0; }
+.fjson-card p,.faq-card>p { color:var(--text-secondary); font-size:.8rem; line-height:1.6; }
+.social-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:.45rem; margin-top:1rem; }
+.social-link { display:flex; justify-content:space-between; align-items:center; padding:.58rem .65rem; border:1px solid var(--border); border-radius:.65rem; color:var(--text-secondary); text-decoration:none; font-size:.73rem; transition:all .15s cubic-bezier(.16,1,.3,1); }
+.social-link:hover { color:var(--primary); border-color:var(--primary); transform:translateY(-1px); }
+.faq-list { display:grid; gap:.5rem; margin-top:.8rem; }
+.faq-list details { border:1px solid var(--border); background:var(--bg-tertiary); border-radius:.7rem; padding:.72rem .85rem; }
+.faq-list summary { cursor:pointer; font-size:.79rem; font-weight:700; color:var(--text-primary); }
+.faq-list p { color:var(--text-secondary); font-size:.75rem; line-height:1.55; margin:.55rem 0 .1rem; }
+.footer-main { display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:1rem; align-items:start; }
+.footer-brand { display:flex; gap:.7rem; align-items:center; }
+.footer-brand img { width:46px; height:46px; padding:3px; object-fit:contain; border-radius:10px; background:rgba(242,252,158,.06); filter:brightness(1.75) contrast(1.12); }
+.footer-col strong { display:block; font-size:.73rem; color:var(--text-primary); margin-bottom:.45rem; text-transform:uppercase; letter-spacing:.06em; }
+.footer-col a { display:block; color:var(--text-muted); text-decoration:none; font-size:.72rem; margin:.32rem 0; }
+.footer-col a:hover { color:var(--primary); }
+.footer-legal { display:flex; justify-content:space-between; gap:1rem; margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border); color:var(--text-muted); font-size:.67rem; }
+@media(max-width:900px){ .header-nav{display:none}.decision-grid{grid-template-columns:repeat(2,1fr)}.about-grid{grid-template-columns:1fr}.footer-main{grid-template-columns:1fr 1fr} }
+@media(max-width:600px){ .brand-copy small{display:none}.decision-grid,.trust-strip,.social-grid,.footer-main{grid-template-columns:1fr}.knowledge-heading,.footer-legal{align-items:flex-start;flex-direction:column}.header-actions{gap:.35rem}.mode-btn{padding:.4rem .55rem;font-size:.7rem} }
+
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
@@ -1366,16 +1426,22 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 </style>
 </head>
-<body>
+<body id="top">
 
 <!-- Header -->
 <header class="header">
     <div class="container">
         <div class="header-content">
-            <div class="logo">
-                <span class="logo-icon">🧭</span>
-                <span>GGUF Compass</span>
-            </div>
+            <a class="brand-lockup" href="#top" aria-label="GGUF Compass por FreakingJSON">
+                <img class="brand-logo" src="assets/freakingjson-logo.png" alt="Logo oficial de FreakingJSON" width="38" height="38">
+                <span class="brand-copy"><strong>GGUF Compass</strong><small>por FreakingJSON</small></span>
+            </a>
+            <nav class="header-nav" aria-label="Navegación principal">
+                <a href="#wizard-section">Configurar</a>
+                <a href="#como-elegir">Cómo elegir</a>
+                <a href="#faq">Ayuda</a>
+                <a href="https://github.com/n30j0su3/gguf-compass" target="_blank" rel="noopener">GitHub ↗</a>
+            </nav>
             <div class="header-actions">
                 <div class="mode-toggle">
                     <button class="mode-btn active" data-mode="wizard" onclick="setMode('wizard')">🎯 Wizard</button>
@@ -1400,20 +1466,43 @@ input[type="range"]::-webkit-slider-thumb:hover {
         <p>Selecciona tu hardware, te decimos exactamente qué modelo descargar y con qué flags ejecutarlo. MoE offloading, MTP, TurboQuant — todo explicado.</p>
         <div class="hero-stats">
             <div class="stat">
-                <div class="stat-value">50+</div>
-                <div class="stat-label">GPUs soportadas</div>
+                <div class="stat-value">11</div>
+                <div class="stat-label">Tiers de hardware</div>
             </div>
             <div class="stat">
-                <div class="stat-value">100+</div>
-                <div class="stat-label">Modelos catalogados</div>
+                <div class="stat-value">6</div>
+                <div class="stat-label">Casos de uso</div>
             </div>
             <div class="stat">
                 <div class="stat-value">5</div>
-                <div class="stat-label">Herramientas</div>
+                <div class="stat-label">Runtimes</div>
             </div>
             <div class="stat">
-                <div class="stat-value">∞</div>
-                <div class="stat-label">Combinaciones</div>
+                <div class="stat-value">0</div>
+                <div class="stat-label">Telemetría</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Decision guide -->
+<section class="knowledge-section" id="como-elegir">
+    <div class="container">
+        <div class="knowledge-shell">
+            <div class="knowledge-heading">
+                <div><h2>Lee tu recomendación en 30 segundos</h2><p>Cuatro decisiones. Si entiendes esto, no necesitas memorizar veinte flags.</p></div>
+                <a class="source-link" href="https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md" target="_blank" rel="noopener">Fuente oficial llama.cpp ↗</a>
+            </div>
+            <div class="decision-grid">
+                <article class="decision-card"><span class="decision-num">1</span><h3>Modelo = capacidad</h3><p>Más parámetros suelen dar más capacidad, pero exigen más memoria. Prefiere un modelo pequeño en buena quant antes que uno enorme degradado.</p></article>
+                <article class="decision-card"><span class="decision-num">2</span><h3>Quant = calidad vs tamaño</h3><p><strong>Q4_K_M</strong> es nuestro piso práctico. Q5/Q6 suben calidad si hay memoria. Q3/Q2 quedan como emergencia o experimento.</p></article>
+                <article class="decision-card"><span class="decision-num">3</span><h3>Contexto = memoria de trabajo</h3><p>8K cubre chat y tareas normales. 16K–32K para documentos/código. 128K solo si lo necesitas: reserva mucha KV cache.</p></article>
+                <article class="decision-card"><span class="decision-num">4</span><h3>Perfil = prioridad</h3><p><strong>Balanceado</strong> es el inicio seguro. Estable conserva calidad. Velocidad aumenta batch y requiere más margen/validación.</p></article>
+            </div>
+            <div class="trust-strip" aria-label="Niveles de confianza">
+                <div class="trust-item"><span>✅</span><div><strong>Validado FJSON</strong><span>Ejecutado con evidencia real en hardware identificado.</span></div></div>
+                <div class="trust-item"><span>👥</span><div><strong>Receta comunitaria</strong><span>Fuente enlazada; el resultado puede variar por CPU, build y modelo.</span></div></div>
+                <div class="trust-item"><span>🧮</span><div><strong>Estimación del wizard</strong><span>Punto de partida, no promesa de velocidad ni compatibilidad universal.</span></div></div>
             </div>
         </div>
     </div>
@@ -1619,7 +1708,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
                     <div class="toggle-switch active" id="expert-fa" onclick="this.classList.toggle('active'); updateExpert();"></div>
                 </div>
                 <div class="toggle-group">
-                    <span class="toggle-label">KV Cache Turbo4/3 (ahorra VRAM de contexto)</span>
+                    <span class="toggle-label">KV Turbo4/3 <small style="display:block;color:var(--text-muted);font-weight:400;margin-top:.15rem">Solo fork TurboQuant/ik_llama.cpp; upstream usa q8_0</small></span>
                     <div class="toggle-switch" id="expert-kv" onclick="this.classList.toggle('active'); updateExpert();"></div>
                 </div>
                 <div class="toggle-group">
@@ -1644,22 +1733,53 @@ input[type="range"]::-webkit-slider-thumb:hover {
     </div>
 </section>
 
+<!-- FreakingJSON + FAQ -->
+<section class="about-section" id="faq">
+    <div class="container about-grid">
+        <article class="fjson-card" id="freakingjson">
+            <div class="fjson-card-header">
+                <img class="fjson-card-logo" src="assets/freakingjson-logo.png" alt="FreakingJSON" width="64" height="64">
+                <div><span class="evidence-badge evidence-validated">Open source</span><h2 style="margin-top:.45rem">Hecho por FreakingJSON</h2></div>
+            </div>
+            <p>Tech, IA local, homelab, gaming y cultura geek sin vendor lock-in. GGUF Compass no registra usuarios, no tiene telemetría y puedes inspeccionar, copiar o modificar todo el código bajo licencia MIT.</p>
+            <div class="social-grid">
+                <a class="social-link" href="https://freakingjson.com" target="_blank" rel="noopener"><span>🌐 Web</span><b>↗</b></a>
+                <a class="social-link" href="https://github.com/n30j0su3" target="_blank" rel="noopener"><span>⌘ GitHub</span><b>↗</b></a>
+                <a class="social-link" href="https://www.youtube.com/@freakingjson" target="_blank" rel="noopener"><span>▶ YouTube</span><b>↗</b></a>
+                <a class="social-link" href="https://www.instagram.com/freakingjson/" target="_blank" rel="noopener"><span>◎ Instagram</span><b>↗</b></a>
+                <a class="social-link" href="https://www.tiktok.com/@freakingjson" target="_blank" rel="noopener"><span>♪ TikTok</span><b>↗</b></a>
+                <a class="social-link" href="https://linktr.ee/freakingjson" target="_blank" rel="noopener"><span>＋ Todas las redes</span><b>↗</b></a>
+                <a class="social-link" href="https://buymeacoffee.com/freakingjson" target="_blank" rel="noopener"><span>☕ Apoyar</span><b>↗</b></a>
+                <a class="social-link" href="https://github.com/n30j0su3/gguf-compass/blob/main/LICENSE" target="_blank" rel="noopener"><span>⚖ Licencia MIT</span><b>↗</b></a>
+            </div>
+        </article>
+        <article class="faq-card">
+            <h2>Ayuda rápida antes de pegar el comando</h2>
+            <p>Las recomendaciones son puntos de partida. Tu build, backend, modelo exacto y memoria libre cambian el resultado.</p>
+            <div class="faq-list">
+                <details open><summary>¿Turbo4/Turbo3 funciona en cualquier llama.cpp?</summary><p><strong>No.</strong> Es una extensión de TurboQuant/ik_llama.cpp validada por FJSON. El llama.cpp oficial acepta q8_0, q5, q4 e iq4_nl, pero no tipos “turbo”. GGUF Compass usa q8_0 automáticamente cuando eliges upstream.</p></details>
+                <details><summary>¿Cuál es el perfil más seguro para empezar?</summary><p><strong>Balanceado.</strong> Si la respuesta se corta, hay OOM o notas inestabilidad, baja contexto/batch o cambia a Estable. Velocidad no significa “mejor” y requiere margen.</p></details>
+                <details><summary>¿Por qué no sugerimos KV q4_0?</summary><p>El ahorro no compensa el riesgo de pérdida de coherencia y loops en respuestas largas. Usamos q8_0 como opción conservadora y Turbo4/3 solo en runtime compatible.</p></details>
+                <details><summary>¿Qué ocurre si uso varios usuarios o slots?</summary><p>En llama-server, <code>-c</code> es el contexto total y se comparte entre slots paralelos. Si defines <code>-np 4</code>, dimensiona el contexto pensando en cuatro sesiones; no asumas 32K por usuario con <code>-c 32768</code>.</p></details>
+                <details><summary>¿Es seguro exponer llama-server en la red?</summary><p>Por defecto escucha en <code>127.0.0.1</code>. Si cambias a <code>--host 0.0.0.0</code>, añade <code>--api-key-file</code>, limita firewall/CORS y nunca habilites herramientas/agente en una red no confiable.</p></details>
+                <details><summary>¿Los tok/s son garantizados?</summary><p>No. CPU, RAM, backend, build, contexto, prompt y modelo exacto influyen. Los presets muestran su nivel de evidencia; las estimaciones del wizard no son benchmarks.</p></details>
+            </div>
+        </article>
+    </div>
+</section>
+
 <!-- Back to top -->
 <button class="back-to-top" id="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Volver arriba">↑</button>
 
 <!-- Footer -->
 <footer class="footer">
     <div class="container">
-        <div class="footer-content">
-            <div style="color: var(--text-muted); font-size: 0.875rem;">
-                🧭 GGUF Compass · Hecho con ❤️ para la comunidad local AI
-            </div>
-            <div class="footer-links">
-                <a href="https://github.com/n30j0su3/gguf-compass" target="_blank">GitHub</a>
-                <a href="#" onclick="showAbout(); return false;">Acerca de</a>
-                <a href="#" onclick="showFAQ(); return false;">FAQ</a>
-            </div>
+        <div class="footer-main">
+            <div class="footer-brand"><img src="assets/freakingjson-logo.png" alt="" width="46" height="46"><div><strong style="font-size:.9rem;color:var(--text-primary)">GGUF Compass</strong><div style="color:var(--text-muted);font-size:.7rem;margin-top:.25rem">Local AI sin humo. Código abierto, datos locales.</div></div></div>
+            <div class="footer-col"><strong>Proyecto</strong><a href="https://github.com/n30j0su3/gguf-compass" target="_blank" rel="noopener">Código fuente</a><a href="https://github.com/n30j0su3/gguf-compass/issues" target="_blank" rel="noopener">Reportar un problema</a><a href="https://github.com/n30j0su3/gguf-compass/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contribuir</a></div>
+            <div class="footer-col"><strong>Referencias</strong><a href="https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md" target="_blank" rel="noopener">llama.cpp server docs</a><a href="https://huggingface.co/models?library=gguf" target="_blank" rel="noopener">Modelos GGUF</a><a href="https://freakingjson.com" target="_blank" rel="noopener">FreakingJSON</a></div>
         </div>
+        <div class="footer-legal"><span>© 2026 FreakingJSON. GGUF Compass se distribuye bajo licencia MIT.</span><span>Sin cookies · Sin analytics · Sin backend · Tus selecciones no salen del navegador.</span></div>
     </div>
 </footer>
 
@@ -1683,17 +1803,17 @@ const state = {
 // DATA — GPU Options
 // ═══════════════════════════════════════════════════════════════════════════
 const GPU_OPTIONS = [
-    { id: 'none', label: 'Sin GPU / CPU only', vram: 0, ram: 16, cores: 8, examples: 'Cualquier CPU moderna', notes: 'Inferencia 100% CPU. Lento pero funciona.', icon: '💻' },
-    { id: 'gpu-4gb', label: '4 GB VRAM', vram: 4, ram: 16, cores: 8, examples: 'GTX 1050 Ti, GTX 1650', notes: 'Muy limitado. Solo modelos ≤3B.', icon: '🎮' },
-    { id: 'gpu-6gb', label: '6 GB VRAM', vram: 6, ram: 16, cores: 8, examples: 'GTX 1060, RTX 2060, RTX 3050', notes: 'Tier mínimo viable. MoE offloading funciona.', icon: '🎮' },
-    { id: 'gpu-8gb', label: '8 GB VRAM', vram: 8, ram: 16, cores: 8, examples: 'RTX 2070, RTX 3060 Ti, RTX 4060', notes: 'Sweet spot para 7B-9B Q4_K_M.', icon: '🎮' },
-    { id: 'gpu-12gb', label: '12 GB VRAM', vram: 12, ram: 32, cores: 12, examples: 'RTX 3060 12GB, RTX 4070', notes: 'Codacus validó 35B MoE aquí.', icon: '🎮' },
-    { id: 'gpu-16gb', label: '16 GB VRAM', vram: 16, ram: 32, cores: 12, examples: 'RTX 4060 Ti 16GB, RTX 5060 Ti', notes: '27B dense Q3/Q4 o 35B MoE.', icon: '🎮' },
-    { id: 'gpu-24gb', label: '24 GB VRAM', vram: 24, ram: 64, cores: 16, examples: 'RTX 3090, RTX 4090', notes: '27B Q4 full GPU o 70B MoE.', icon: '🔥' },
-    { id: 'gpu-32gb', label: '32 GB VRAM', vram: 32, ram: 64, cores: 16, examples: 'RTX 5090', notes: 'High-end. 70B dense viable.', icon: '🔥' },
-    { id: 'unified-16gb', label: 'Unified 16 GB', vram: 16, ram: 16, cores: 10, unified: true, examples: 'Apple M1/M2 16GB', notes: 'VRAM y RAM compartidas.', icon: '🍎' },
-    { id: 'unified-32gb', label: 'Unified 32 GB', vram: 32, ram: 32, cores: 12, unified: true, examples: 'Apple M2 Pro, AMD Strix Halo', notes: 'Cómodo para 27B dense.', icon: '🍎' },
-    { id: 'unified-64gb', label: 'Unified 64 GB+', vram: 64, ram: 64, cores: 16, unified: true, examples: 'Apple M2/M3 Max, MiniV', notes: '35B MoE full GPU + 128K ctx.', icon: '🍎' }
+    { id: 'none', label: 'Sin GPU / CPU only', vram: 0, ram: 16, cores: 8, examples: 'Cualquier CPU moderna', notes: 'Inferencia 100% CPU. Empieza con 1B–3B Q4/Q5.', icon: '💻' },
+    { id: 'gpu-4gb', label: '4 GB VRAM', vram: 4, ram: 16, cores: 8, examples: 'GTX 1050 Ti, GTX 1650', notes: '3B Q4/Q5; 7B requiere offload y paciencia.', icon: '🎮' },
+    { id: 'gpu-6gb', label: '6 GB VRAM', vram: 6, ram: 16, cores: 8, examples: 'GTX 1060, RTX 2060, RTX 3050', notes: '3B en alta calidad o 7B Q4 con offload parcial.', icon: '🎮' },
+    { id: 'gpu-8gb', label: '8 GB VRAM', vram: 8, ram: 16, cores: 8, examples: 'RTX 2070, RTX 3060 Ti, RTX 4060', notes: 'Sweet spot para 7B–9B Q4_K_M.', icon: '🎮' },
+    { id: 'gpu-12gb', label: '12 GB VRAM', vram: 12, ram: 32, cores: 12, examples: 'RTX 3060 12GB, RTX 4070', notes: '9B–14B Q4; 35B MoE exige offload y 32GB+ RAM.', icon: '🎮' },
+    { id: 'gpu-16gb', label: '16 GB VRAM', vram: 16, ram: 32, cores: 12, examples: 'RTX 4060 Ti 16GB, RTX 5060 Ti', notes: '14B Q6 o 27B Q4 híbrido; 35B MoE con RAM.', icon: '🎮' },
+    { id: 'gpu-24gb', label: '24 GB VRAM', vram: 24, ram: 64, cores: 16, examples: 'RTX 3090, RTX 4090', notes: '27B Q4 full-GPU con margen o 35B MoE Q4.', icon: '🔥' },
+    { id: 'gpu-32gb', label: '32 GB VRAM', vram: 32, ram: 64, cores: 16, examples: 'RTX 5090', notes: '27B Q6/Q8 o 35B MoE high-quant; 70B Q4 requiere RAM/offload.', icon: '🔥' },
+    { id: 'unified-16gb', label: 'Unified 16 GB', vram: 16, ram: 16, cores: 10, unified: true, examples: 'Apple M1/M2 16GB', notes: 'Pool compartido con el SO: 9B Q4 es el objetivo sensato.', icon: '🍎' },
+    { id: 'unified-32gb', label: 'Unified 32 GB', vram: 32, ram: 32, cores: 12, unified: true, examples: 'Apple M2 Pro, AMD Strix Halo', notes: '27B Q4 con contexto moderado y margen para el SO.', icon: '🍎' },
+    { id: 'unified-64gb', label: 'Unified 64 GB+', vram: 64, ram: 64, cores: 16, unified: true, examples: 'Apple M2/M3 Max, MiniV', notes: '35B high-quant o 70B Q4 candidato; valida contexto y memoria libre.', icon: '🍎' }
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1723,11 +1843,11 @@ const CONTEXT_OPTIONS = [
 // DATA — Tools
 // ═══════════════════════════════════════════════════════════════════════════
 const TOOLS = [
-    { id: 'llamacpp', label: 'llama.cpp', desc: 'El estándar. Máximo control, mejor performance.', icon: '🦙', recommended: true, command: 'llama-server' },
-    { id: 'lmstudio', label: 'LM Studio', desc: 'GUI amigable. Ideal para principiantes.', icon: '🖥️', recommended: false, command: null },
-    { id: 'ollama', label: 'Ollama', desc: 'Docker-like para LLMs. Simplicidad máxima.', icon: '🐳', recommended: false, command: 'ollama run' },
-    { id: 'ikllamacpp', label: 'ik_llama.cpp', desc: 'Fork con optimizaciones extras para MoE.', icon: '⚡', recommended: false, command: 'llama-server' },
-    { id: 'vllm', label: 'vLLM', desc: 'Para datacenter. PagedAttention, alta concurrencia.', icon: '🚀', recommended: false, command: 'vllm serve' }
+    { id: 'llamacpp', label: 'llama.cpp oficial', desc: 'Upstream estable. KV compatible: f16/q8_0/q5/q4/iq4_nl; no TurboQuant.', icon: '🦙', recommended: true, command: 'llama-server', turboKv: false, evidence: 'official' },
+    { id: 'lmstudio', label: 'LM Studio', desc: 'GUI amigable. Ideal para principiantes; los controles dependen de la versión.', icon: '🖥️', recommended: false, command: null, turboKv: false },
+    { id: 'ollama', label: 'Ollama', desc: 'Gestión simple de modelos. Menos control directo sobre flags llama-server.', icon: '🐳', recommended: false, command: 'ollama run', turboKv: false },
+    { id: 'ikllamacpp', label: 'TurboQuant / ik_llama.cpp', desc: 'Runtime avanzado compatible con KV Turbo4/3. Requiere usar el fork correcto.', icon: '⚡', recommended: false, command: 'llama-server', turboKv: true, evidence: 'fjson' },
+    { id: 'vllm', label: 'vLLM', desc: 'Servidor Linux/CUDA para concurrencia. No es un runtime GGUF general.', icon: '🚀', recommended: false, command: 'vllm serve', turboKv: false }
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1760,9 +1880,12 @@ const VALIDATED_PRESETS = [
         model: 'Qwen3.6-35B-A3B',
         quant: 'UD-Q4_K_M',
         type: 'moe',
-        command: 'llama-server -m Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -ngl 99 --n-cpu-moe 35 --no-mmap --mlock --cache-type-k turbo4 --cache-type-v turbo3 -c 64000 -t 4 -b 512 --flash-attn auto --port 8080',
-        notes: 'El legendario setup de Codacus. 3→17 tok/s en 5 iteraciones. 256K ctx con TurboQuant.',
-        source: 'Codacus YouTube'
+        command: 'llama-server -m Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -ngl all --n-cpu-moe 35 --mlock --cache-type-k turbo4 --cache-type-v turbo3 -c 64000 -t 4 -b 512 --flash-attn auto --port 8080',
+        notes: 'Receta comunitaria de Codacus para 6GB VRAM. Comando configurado a 64K; velocidad y estabilidad dependen de CPU/RAM/build.',
+        source: 'Codacus YouTube',
+        sourceUrl: 'https://youtu.be/8F_5pdcD3HY',
+        evidence: 'community',
+        runtime: 'turboquant'
     },
     {
         id: 'preset-rtx3060',
@@ -1773,9 +1896,11 @@ const VALIDATED_PRESETS = [
         model: 'Qwen3.6-35B-A3B',
         quant: 'UD-Q4_K_M',
         type: 'moe',
-        command: 'llama-server -m Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -ngl 99 --n-cpu-moe 32 --flash-attn auto --jinja -c 65536 -t 16 -b 512 -ub 128 --cache-type-k q8_0 --cache-type-v q8_0 --port 8080',
-        notes: 'KnightLi receta: 15→33-36 tok/s. Sweet spot mainstream.',
-        source: 'KnightLi / Codacus'
+        command: 'llama-server -m Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -ngl all --n-cpu-moe 32 --flash-attn auto --jinja -c 65536 -t 16 -b 512 -ub 128 --cache-type-k q8_0 --cache-type-v q8_0 --port 8080',
+        notes: 'Receta comunitaria reportada en Ryzen 7 3700X + 32GB RAM. El rango 33-36 tok/s no se extrapola a otra CPU/build.',
+        source: 'KnightLi / Codacus',
+        evidence: 'community',
+        runtime: 'upstream'
     },
     {
         id: 'preset-rtx3070',
@@ -1786,9 +1911,11 @@ const VALIDATED_PRESETS = [
         model: 'Qwen3.6-35B-A3B',
         quant: 'UD-Q4_K_M',
         type: 'moe',
-        command: 'llama-server -m Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -ngl 99 --n-cpu-moe 999 --flash-attn auto --jinja -c 32768 -t 12 -b 512 --cache-type-k turbo4 --cache-type-v turbo3 --mlock --port 8080',
-        notes: 'n-cpu-moe 999: todos los expertos a CPU. Funcional ~8-15 tok/s.',
-        source: 'KnightLi'
+        command: 'llama-server -m Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -ngl all --n-cpu-moe 999 --flash-attn auto --jinja -c 32768 -t 12 -b 512 --cache-type-k turbo4 --cache-type-v turbo3 --mlock --port 8080',
+        notes: 'Receta comunitaria: MoE con expertos en CPU/RAM. Toma 8-15 tok/s como rango reportado, no como garantía.',
+        source: 'KnightLi',
+        evidence: 'community',
+        runtime: 'turboquant'
     },
     {
         id: 'preset-rtx4060ti',
@@ -1799,9 +1926,11 @@ const VALIDATED_PRESETS = [
         model: 'Qwen3.6-35B-A3B',
         quant: 'Q4_K_M',
         type: 'moe',
-        command: 'llama-server -m Qwen3.6-35B-A3B-Q4_K_M.gguf -ngl 99 --n-cpu-moe 16 --flash-attn auto -c 65536 -t 12 -b 512 --cache-type-k q8_0 --cache-type-v q8_0 --port 8080',
-        notes: 'n-cpu-moe 16-24: balance GPU/CPU. ~25-35 tok/s. Q4_K_M = calidad trabajo real.',
-        source: 'Codacus / Comunidad'
+        command: 'llama-server -m Qwen3.6-35B-A3B-Q4_K_M.gguf -ngl all --n-cpu-moe 16 --flash-attn auto -c 65536 -t 12 -b 512 --cache-type-k q8_0 --cache-type-v q8_0 --port 8080',
+        notes: 'n-cpu-moe 16-24: balance GPU/CPU. El rendimiento varía según CPU/RAM/build.',
+        source: 'Codacus / Comunidad',
+        evidence: 'community',
+        runtime: 'upstream'
     },
     {
         id: 'preset-rtx4090',
@@ -1812,9 +1941,11 @@ const VALIDATED_PRESETS = [
         model: 'Qwen3.6-35B-A3B',
         quant: 'UD-Q4_K_XL',
         type: 'moe',
-        command: 'llama-server -m Qwen3.6-35B-A3B-UD-Q4_K_XL.gguf -ngl 99 --flash-attn auto -c 65536 -t 16 -b 512 --cache-type-k q8_0 --cache-type-v q8_0 --port 8080',
-        notes: 'Sin cpu-moe — todo en GPU. ~120-140+ tok/s.',
-        source: 'Codacus / Comunidad'
+        command: 'llama-server -m Qwen3.6-35B-A3B-UD-Q4_K_XL.gguf -ngl all --flash-attn auto -c 65536 -t 16 -b 512 --cache-type-k q8_0 --cache-type-v q8_0 --port 8080',
+        notes: 'Preset full-GPU de referencia. Verifica VRAM libre y modelo exacto antes de subir contexto.',
+        source: 'Codacus / Comunidad',
+        evidence: 'community',
+        runtime: 'upstream'
     },
     {
         id: 'preset-m2max',
@@ -1825,11 +1956,32 @@ const VALIDATED_PRESETS = [
         model: 'Qwen3.6-35B-A3B',
         quant: 'Q4_K_M',
         type: 'moe',
-        command: 'llama-server -m Qwen3.6-35B-A3B-Q4_K_M.gguf -ngl 99 -c 131072 -t 12 --no-mmap --cache-type-k turbo4 --cache-type-v turbo3 --cache-reuse 256 --port 8080',
-        notes: 'Unified memory. 128K context viable.',
-        source: 'Internal benchmarks'
+        command: 'llama-server -m Qwen3.6-35B-A3B-Q4_K_M.gguf -ngl all -c 131072 -t 12 --cache-type-k turbo4 --cache-type-v turbo3 --cache-reuse 256 --port 8080',
+        notes: 'Configuración candidata para memoria unificada de 64GB. 128K requiere validación con el modelo y runtime exactos.',
+        source: 'Internal benchmarks',
+        evidence: 'estimated',
+        runtime: 'turboquant'
     }
 ];
+
+const EVIDENCE_META = {
+    validated: { label: 'Validado FJSON', icon: '✅' },
+    community: { label: 'Receta comunitaria', icon: '👥' },
+    estimated: { label: 'Estimación', icon: '🧮' }
+};
+
+function evidenceBadge(level = 'estimated') {
+    const meta = EVIDENCE_META[level] || EVIDENCE_META.estimated;
+    return `<span class="evidence-badge evidence-${level}">${meta.icon} ${meta.label}</span>`;
+}
+
+function presetCommandForTool(preset, tool) {
+    if (!preset || !tool || !['llamacpp', 'ikllamacpp'].includes(tool.id)) return null;
+    if (tool.id === 'ikllamacpp') return preset.command;
+    return preset.command
+        .replace(/--cache-type-k turbo4/g, '--cache-type-k q8_0')
+        .replace(/--cache-type-v turbo3/g, '--cache-type-v q8_0');
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // INITIALIZATION
@@ -1973,13 +2125,14 @@ function showPresetSuggestions(vram) {
         <div class="option-card" style="cursor: pointer;" onclick="applyPreset('${preset.id}')">
             <div class="option-card-header">
                 <span class="option-card-title">⚡ ${preset.name}</span>
-                <span class="option-card-badge">${preset.source}</span>
+                ${evidenceBadge(preset.evidence)}
             </div>
             <div class="option-card-desc">${preset.notes}</div>
             <div class="option-card-meta">
                 <span class="meta-tag">${preset.model}</span>
                 <span class="meta-tag">${preset.quant}</span>
-                <span class="meta-tag">${preset.type.toUpperCase()}</span>
+                <span class="meta-tag">${preset.runtime === 'turboquant' ? 'TurboQuant requerido' : 'llama.cpp upstream'}</span>
+                ${preset.sourceUrl ? `<a class="source-link" href="${preset.sourceUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Fuente ↗</a>` : `<span class="meta-tag">Fuente: ${preset.source}</span>`}
             </div>
         </div>
     `).join('');
@@ -2117,9 +2270,11 @@ function calculateFit(vram, ram, modelSizeGB, isMoE, contextTokens) {
     // Guard: nunca operar con null/undefined — defaults conservadores
     vram = vram || 0;
     ram = ram || 16;
-    // Reserve memory for OS and overhead
-    const vramFree = vram * 0.85;
-    const ramFree = ram * 0.7;
+    // Discrete GPU: VRAM and system RAM are separate pools.
+    // Unified memory: the same physical pool must never be counted twice.
+    const isUnified = state.hardware.type === 'unified';
+    const vramFree = vram * (isUnified ? 0.78 : 0.85);
+    const ramFree = isUnified ? 0 : ram * 0.7;
     
     // KV cache estimation (rough)
     const kvCacheGB = (contextTokens / 8192) * 2;
@@ -2207,6 +2362,20 @@ function generateRecommendations() {
             examples: MODEL_RECOMMENDATIONS.dense.small.examples,
             priority: 'alternative'
         });
+    } else if (state.hardware.type === 'unified' && vram <= 16) {
+        // Unified 16GB shares memory with OS/apps; do not treat it like 16GB VRAM + 16GB RAM.
+        recommendations.push({
+            type: 'dense', size: 'medium', params: 9, quant: 'Q4_K_M', modelSize: 5.2,
+            fit: calculateFit(vram, ram, 5.2, false, ctx.tokens),
+            examples: MODEL_RECOMMENDATIONS.dense.medium.examples,
+            priority: 'recommended'
+        });
+        recommendations.push({
+            type: 'dense', size: 'small', params: 3, quant: 'Q6_K', modelSize: 2.5,
+            fit: calculateFit(vram, ram, 2.5, false, ctx.tokens),
+            examples: MODEL_RECOMMENDATIONS.dense.small.examples,
+            priority: 'alternative'
+        });
     } else if (vram <= 16) {
         // 16GB - can do large dense or MoE
         recommendations.push({
@@ -2227,6 +2396,7 @@ function generateRecommendations() {
             modelSize: 15.5,
             fit: calculateFit(vram, ram, 15.5, false, ctx.tokens),
             examples: MODEL_RECOMMENDATIONS.dense.large.examples,
+            mtpCapable: true,
             priority: 'alternative'
         });
     } else {
@@ -2239,6 +2409,7 @@ function generateRecommendations() {
             modelSize: 15.5,
             fit: calculateFit(vram, ram, 15.5, false, ctx.tokens),
             examples: MODEL_RECOMMENDATIONS.dense.large.examples,
+            mtpCapable: true,
             priority: 'recommended'
         });
         recommendations.push({
@@ -2268,27 +2439,27 @@ const PROFILE_META = {
     balanceado: {
         icon: '⚖️',
         label: 'Balanceado',
-        desc: 'Equilibrio calidad/velocidad validado en benchmarks reales. KV Turbo4/3 en contextos largos (ahorro sin pérdida), speculative decoding moderado para coding. El punto de partida recomendado para el 90% de usuarios.'
+        desc: 'Punto de partida para la mayoría: batch moderado, Flash Attention en auto y KV ajustado al runtime elegido. Prioriza compatibilidad sin renunciar a una experiencia fluida.'
     },
     velocidad: {
         icon: '🚀',
         label: 'Velocidad',
-        desc: 'Máximo squeeze de tokens/seg: KV cache Turbo4/3 (rápido sin degradar calidad), batches grandes (-b 1024), speculative decoding agresivo y cache-reuse extendido. La mejor experiencia interactiva.'
+        desc: 'Aumenta batch/micro-batch y usa la opción KV más rápida que soporte tu runtime. Exige margen de memoria: si aparece OOM, baja a Balanceado antes de tocar flags al azar.'
     }
 };
 
 const FLAG_INFO = {
-    '-m': { name: 'Modelo', desc: 'Ruta al archivo GGUF. El cerebro de la operación — todo lo demás son ajustes sobre cómo cargarlo y ejecutarlo.' },
-    '-ngl': { name: 'GPU Layers', desc: 'Capas del modelo que van a la GPU. 99 = todo en VRAM (máxima velocidad). Un valor menor offloadea el resto a CPU/RAM.' },
-    '--n-cpu-moe': { name: 'MoE CPU Offload', desc: 'Número de capas de expertos MoE que se quedan en RAM/CPU. La clave para correr MoEs grandes (35B+) con poca VRAM sin que se arrastre.' },
-    '-c': { name: 'Contexto', desc: 'Tokens de memoria de la conversación. Más contexto = más VRAM ocupada por el KV cache. No pongas 128k si solo necesitas 8k.' },
-    '-t': { name: 'Threads', desc: 'Hilos de CPU para las capas fuera de GPU. Usa tus cores físicos (no lógicos) para mejor throughput.' },
-    '-b': { name: 'Batch Size', desc: 'Tokens procesados por lote al ingerir el prompt. Batches grandes = prompts largos procesados mucho más rápido.' },
-    '-ub': { name: 'Micro-batch', desc: 'Subdivisión física del batch. 512 es el sweet spot para la mayoría de GPUs consumer.' },
-    '--no-mmap': { name: 'No Memory-Map', desc: 'Carga el modelo completo en RAM en vez de mapearlo desde disco. Carga más rápida y sin stuttering, a costa de más RAM residente.' },
-    '--mlock': { name: 'Memory Lock', desc: 'Bloquea el modelo en RAM para que el SO nunca lo mande a swap. Esencial cuando haces offload parcial — un swap mata el rendimiento.' },
-    '--cache-type-k': { name: 'KV Cache K', desc: 'Compresión del cache de Keys (memoria del contexto). ✅ Recomendado: turbo4 — compresión moderna sin pérdida perceptible de calidad. Conservador: q8_0. ⚠️ Evita q4_0 aquí: degrada la coherencia y puede provocar loops de repetición en respuestas largas.' },
-    '--cache-type-v': { name: 'KV Cache V', desc: 'Compresión del cache de Values. ✅ Recomendado: turbo3 (el V aguanta más compresión que el K). Conservador: q8_0. ⚠️ q4_0 en V es la causa #1 de modelos que "se traban" repitiendo texto en contextos largos.' },
+    '-m': { name: 'Modelo', desc: 'Ruta al archivo GGUF. Confirma que el archivo existe y que su chat template corresponde al modelo.' },
+    '-ngl': { name: 'Capas en GPU', desc: 'Capas que se ejecutan en GPU. 99 solicita offload máximo; el runtime ajusta al total real. Reduce si aparece OOM.' },
+    '--n-cpu-moe': { name: 'Expertos MoE en CPU', desc: 'Mantiene los expertos de las primeras N capas MoE en CPU/RAM. Reduce VRAM, pero exige RAM rápida y suficiente.' },
+    '-c': { name: 'Contexto total', desc: 'Tokens totales de contexto del servidor. Con varios slots se comparte entre ellos; más contexto aumenta mucho la KV cache.' },
+    '-t': { name: 'Threads CPU', desc: 'Hilos CPU para generación/offload. Empieza cerca de cores físicos y mide: más hilos no siempre significa más velocidad.' },
+    '-b': { name: 'Batch lógico', desc: 'Máximo batch lógico para procesar prompts. Un valor alto acelera prefill, pero aumenta presión de memoria.' },
+    '-ub': { name: 'Micro-batch físico', desc: 'Lote físico ejecutado por vez. 512 es el default upstream actual; baja a 256/128 si aparece OOM.' },
+    '--no-mmap': { name: 'Sin mmap', desc: 'Desactiva el mapeo del archivo. Puede reducir pageouts junto a mlock, pero normalmente hace más lenta la carga y aumenta memoria residente.' },
+    '--mlock': { name: 'Bloqueo en RAM', desc: 'Pide al sistema mantener el modelo en RAM y evitar swap/compresión. Puede requerir límites/permisos del sistema.' },
+    '--cache-type-k': { name: 'KV Cache K', desc: 'Precisión de las Keys del contexto. llama.cpp oficial: q8_0 es el fallback conservador; TurboQuant compatible: turbo4. ⚠️ Nunca sugerimos q4_0: puede degradar coherencia y favorecer loops.' },
+    '--cache-type-v': { name: 'KV Cache V', desc: 'Precisión de los Values del contexto. llama.cpp oficial: q8_0; TurboQuant compatible: turbo3. Los tipos turbo NO existen en upstream: usa el runtime indicado por el badge.' },
     '--jinja': { name: 'Jinja Template', desc: 'Usa la plantilla de chat Jinja del modelo en vez del formato legacy. Necesario para tool calling y modelos recientes (Qwen3, etc.).' },
     '--flash-attn': { name: 'Flash Attention', desc: 'Kernel de atención optimizado: menos VRAM y más velocidad, sobre todo en contextos largos. Recomendado siempre que el modelo lo soporte.' },
     '--spec-type': { name: 'Speculative Decoding', desc: 'El modelo predice varios tokens por pasada (MTP/draft) y los verifica en batch. Hasta +75% de velocidad en código y texto estructurado.' },
@@ -2352,6 +2523,16 @@ const SPEED_DISPLAY = {
     'blocked':     'No viable en este hardware'
 };
 
+function runtimeNotice(tool) {
+    if (tool.id === 'ikllamacpp') {
+        return `<div class="runtime-notice"><span>⚡</span><div><strong>Requiere runtime TurboQuant compatible.</strong> Este comando puede usar <code>turbo4/turbo3</code>; esos tipos no existen en llama.cpp upstream. Si tu build los rechaza, elige “llama.cpp oficial” y usa q8_0.</div></div>`;
+    }
+    if (tool.id === 'llamacpp') {
+        return `<div class="runtime-notice"><span>🦙</span><div><strong>Compatible con llama.cpp oficial.</strong> Para contexto largo usamos <code>q8_0/q8_0</code>. Es menos agresivo que TurboQuant, pero funciona en upstream y evita KV q4_0.</div></div>`;
+    }
+    return '';
+}
+
 function renderCommandSection(rec, tool, useCase, ctx, idx) {
     const isLlama = tool.id === 'llamacpp' || tool.id === 'ikllamacpp';
     if (!isLlama) {
@@ -2388,6 +2569,7 @@ function renderCommandSection(rec, tool, useCase, ctx, idx) {
     }).join('');
     return `
         <div class="cmd-profiles">
+            ${runtimeNotice(tool)}
             <div class="cmd-profile-tabs">${tabs}</div>
             <div class="cmd-profile-desc" id="cmd-desc-${idx}">${PROFILE_META.balanceado.desc}</div>
             ${variants}
@@ -2406,11 +2588,11 @@ function generateCommand(rec, tool, useCase, ctx, profile = 'balanceado') {
         
         // NGL
         if (rec.fit.fit === 'full-gpu') {
-            cmd += `  -ngl 99 \\\n`;
+            cmd += `  -ngl all \\\n`;
         } else if (rec.fit.fit === 'partial-gpu' && rec.fit.ngl) {
             cmd += `  -ngl ${rec.fit.ngl} \\\n`;
         } else if (rec.fit.fit === 'moe-offload') {
-            cmd += `  -ngl 99 \\\n  --n-cpu-moe ${rec.fit.nCpuMoe || 20} \\\n`;
+            cmd += `  -ngl all \\\n  --n-cpu-moe ${rec.fit.nCpuMoe || 20} \\\n`;
         }
         
         // Context
@@ -2428,30 +2610,28 @@ function generateCommand(rec, tool, useCase, ctx, profile = 'balanceado') {
             cmd += `  -b 512 \\\n`;
         }
         
-        // Memory flags
-        if (rec.fit.fit !== 'full-gpu') {
-            cmd += `  --no-mmap \\\n`;
-            const mlockThreshold = profile === 'estable' ? 16 : 32;
-            if (profile !== 'velocidad' && ram >= mlockThreshold) cmd += `  --mlock \\\n`;
+        // Keep mmap enabled by default: it is upstream's normal, portable path.
+        // Stable hybrid mode may lock mapped pages when enough system RAM exists.
+        if (rec.fit.fit !== 'full-gpu' && profile === 'estable' && ram >= 32) {
+            cmd += `  --mlock \\\n`;
         }
         
-        // KV cache (profile-driven) — turbo4/turbo3 validado, q8_0 conservador.
-        // q4_0 en KV NUNCA se sugiere: degrada coherencia y provoca loops de repetición.
-        if (profile === 'velocidad') {
-            cmd += `  --cache-type-k turbo4 --cache-type-v turbo3 \\\n`;
-        } else if (profile === 'estable') {
-            if (ctx.tokens > 8192) cmd += `  --cache-type-k q8_0 --cache-type-v q8_0 \\\n`;
-        } else if (ctx.tokens > 8192) {
-            cmd += `  --cache-type-k turbo4 --cache-type-v turbo3 \\\n`;
+        // KV cache depends on runtime compatibility. Never emit q4_0.
+        const supportsTurboKv = tool === 'ikllamacpp';
+        if (profile === 'velocidad' || ctx.tokens > 8192) {
+            if (supportsTurboKv && profile !== 'estable') {
+                cmd += `  --cache-type-k turbo4 --cache-type-v turbo3 \\\n`;
+            } else {
+                cmd += `  --cache-type-k q8_0 --cache-type-v q8_0 \\\n`;
+            }
         }
         
-        // Flash attention
-        cmd += profile === 'velocidad' ? `  --flash-attn on \\\n` : `  --flash-attn auto \\\n`;
+        // Auto is the upstream-safe default; unsupported backends fall back cleanly.
+        cmd += `  --flash-attn auto \\\n`;
         
-        // Speculative decoding for coding
-        if (profile !== 'estable' && useCase.id === 'coding' && rec.type === 'dense' && rec.fit.fit === 'full-gpu') {
-            const specMax = profile === 'velocidad' ? 4 : 2;
-            cmd += `  --spec-type draft-mtp \\\n  --spec-draft-n-max ${specMax} \\\n  --spec-draft-n-min 1 \\\n`;
+        // MTP only when the model/runtime actually exposes MTP heads.
+        if (profile !== 'estable' && useCase.id === 'coding' && rec.type === 'dense' && rec.mtpCapable && rec.fit.fit === 'full-gpu') {
+            cmd += `  --spec-type draft-mtp \\\n  --spec-draft-n-max 2 \\\n  --spec-draft-n-min 1 \\\n`;
         }
         
         // Cache reuse (profile-driven)
@@ -2496,27 +2676,29 @@ function generateResults() {
         </div>
     `;
     
-    // Show preset command if user selected a preset
-    if (state.preset) {
+    // Presets are evidence-backed llama-server references. Adapt KV to selected runtime.
+    const presetCmd = presetCommandForTool(state.preset, tool);
+    if (state.preset && presetCmd) {
         html += `
             <div class="recommendation-card recommended" style="border-color: var(--primary); background: rgba(6,182,212,0.05);">
                 <div class="recommendation-header">
                     <div class="recommendation-title">
-                        ⚡ ${state.preset.name} — PRESET VALIDADO
+                        ⚡ ${state.preset.name}
                     </div>
-                    <span class="recommendation-badge badge-recommended">✓ Preset aplicado</span>
+                    ${evidenceBadge(state.preset.evidence)}
                 </div>
                 <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">
-                    💡 ${state.preset.notes} (Fuente: ${state.preset.source})
+                    💡 ${state.preset.notes} Fuente: ${state.preset.source}${state.preset.sourceUrl ? ` · <a class="source-link" href="${state.preset.sourceUrl}" target="_blank" rel="noopener">ver evidencia ↗</a>` : ''}
                 </p>
+                ${runtimeNotice(tool)}
                 <div class="command-output">
                     <div class="command-output-header">
-                        <span class="command-output-title">Comando validado — listo para copiar</span>
+                        <span class="command-output-title">Preset adaptado a ${tool.label}</span>
                         <button class="copy-btn" onclick="copyPresetCommand()">Copiar</button>
                     </div>
-                    <code id="preset-cmd">${state.preset.command}</code>
+                    <code id="preset-cmd">${presetCmd}</code>
                 </div>
-                ${renderFlagExplainer(state.preset.command)}
+                ${renderFlagExplainer(presetCmd)}
             </div>
         `;
     }
@@ -2555,9 +2737,12 @@ function generateResults() {
                     <div class="recommendation-title">
                         ${rec.type === 'moe' ? '🧩' : '📦'} ${rec.params}B ${rec.type === 'moe' ? 'MoE' : 'Dense'} — ${rec.quant}
                     </div>
-                    <span class="recommendation-badge badge-${rec.priority === 'recommended' ? 'recommended' : 'alternative'}">
-                        ${rec.priority === 'recommended' ? '✓ Recomendado' : 'Alternativa'}
-                    </span>
+                    <div style="display:flex;gap:.4rem;align-items:center;flex-wrap:wrap">
+                        <span class="recommendation-badge badge-${rec.priority === 'recommended' ? 'recommended' : 'alternative'}">
+                            ${rec.priority === 'recommended' ? '✓ Recomendado' : 'Alternativa'}
+                        </span>
+                        ${evidenceBadge('estimated')}
+                    </div>
                 </div>
                 
                 <div class="recommendation-specs">
@@ -2593,7 +2778,7 @@ function generateResults() {
         <div style="margin-top: 2rem;">
             <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 1rem;">💡 Tips para tu configuración</h3>
             <div class="tips-grid">
-                ${generateTips(state.hardware, useCase, ctx)}
+                ${generateTips(state.hardware, useCase, ctx, tool)}
             </div>
         </div>
     `;
@@ -2604,7 +2789,7 @@ function generateResults() {
     document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
 }
 
-function generateTips(hw, useCase, ctx) {
+function generateTips(hw, useCase, ctx, tool) {
     const tips = [];
     
     if (hw.vram <= 8) {
@@ -2616,16 +2801,19 @@ function generateTips(hw, useCase, ctx) {
     }
     
     if (ctx.tokens > 16384) {
-        tips.push({ icon: '📚', title: 'Long context', desc: 'Usa --cache-type-k turbo4 --cache-type-v turbo3: ahorra VRAM de contexto SIN perder calidad. Nunca uses q4_0 en el KV — causa loops de repetición.' });
+        const kvTip = tool && tool.turboKv
+            ? 'Tu runtime soporta TurboQuant: usa K=turbo4 y V=turbo3. Si el build rechaza esos tipos, cambia a llama.cpp oficial.'
+            : 'En llama.cpp oficial usa K=q8_0 y V=q8_0. Turbo4/3 requiere un fork compatible; nunca sustituyas por q4_0.';
+        tips.push({ icon: '📚', title: 'Contexto largo: revisa el runtime', desc: kvTip });
     }
     
     if (hw.vram >= 12 && hw.ram >= 24) {
-        tips.push({ icon: '🧩', title: 'MoE es tu amigo', desc: 'Con 12GB+ VRAM y 24GB+ RAM, los modelos MoE 35B ofrecen la mejor calidad/velocidad.' });
+        tips.push({ icon: '🧩', title: 'MoE puede aprovechar tu RAM', desc: 'Con 12GB+ VRAM y 24GB+ RAM, un MoE puede mover expertos a CPU. La velocidad dependerá mucho del ancho de banda de RAM y del CPU.' });
     }
     
     tips.push({ icon: '📥', title: 'Descarga modelos', desc: 'Usa hf download (HuggingFace) o Ollama para gestionar modelos fácilmente.' });
     
-    tips.push({ icon: '🔧', title: 'Ajusta threads', desc: 'Usa -t $(nproc) para máximo rendimiento CPU en inferencia híbrida.' });
+    tips.push({ icon: '🔧', title: 'Mide los threads', desc: 'Empieza cerca de los cores físicos. Prueba -t N y compara: usar todos los hilos lógicos puede ser más lento.' });
     
     return tips.map(t => `
         <div class="tip-card">
@@ -2672,7 +2860,7 @@ function updateExpert() {
     
     // NGL logic
     if (modelSize <= vram * 0.85) {
-        cmd += `  -ngl 99 \\\n`;
+        cmd += `  -ngl all \\\n`;
     } else {
         const ngl = Math.floor((vram * 0.75) / (modelSize / 40));
         cmd += `  -ngl ${Math.max(0, ngl)} \\\n`;
@@ -2829,7 +3017,7 @@ function showFAQ() {
    Orden de preferencia: f16 (máxima calidad) → q8_0 (conservador) → turbo4/3 (recomendado) → ❌ q4_0 (nunca).
 
 ❓ ¿Qué quantización elegir?
-✅ Q4_K_M = MÍNIMO para trabajo real. Calidad profesional garantizada.
+✅ Q4_K_M = nuestro piso práctico recomendado para trabajo real; no es una garantía universal.
    Q5_K_M / Q6_K = Si tienes VRAM de sobra. Mejor calidad, mismo modelo.
    IQ4_XS = Sweet spot para MoE (importance matrix).
    UD-Q4_K_XL = Unsloth Dynamic — mejor que Q4_K_M estándar.
@@ -2844,9 +3032,8 @@ function showFAQ() {
    - Generan código con bugs difíciles de detectar
    - Fallan en razonamiento multi-paso
    
-   Q4_K_M preserva ~95% de la calidad del modelo original.
-   Q3 preserva ~80% — suficiente para probar, no para producir.
-   Q2 preserva ~60% — inaceptable para cualquier uso serio.
+   Q4_K_M suele conservar mucho mejor el comportamiento que Q3/Q2, pero la pérdida depende del modelo y la tarea.
+   Si un modelo grande solo cabe en Q3/Q2, normalmente conviene elegir uno más pequeño en Q4/Q5.
 
 ❓ ¿Por qué mi modelo va lento?
 ✅ 1. Cierra browsers y apps con hardware accel.

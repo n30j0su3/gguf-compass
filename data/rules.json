@@ -8,7 +8,7 @@
       "condition": "model_size_gb <= vram_free_gb * 0.85",
       "result": {
         "strategy": "full-gpu",
-        "ngl": 99,
+        "ngl": "all",
         "n_cpu_moe": 0,
         "expected_speed": "fast",
         "notes": "Mejor caso. Máxima velocidad."
@@ -32,7 +32,7 @@
       "condition": "architecture == 'moe' && active_params_size_gb <= vram_free_gb * 0.5",
       "result": {
         "strategy": "moe-full-gpu",
-        "ngl": 99,
+        "ngl": "all",
         "n_cpu_moe": 0,
         "expected_speed": "very-fast",
         "notes": "Solo active params computan = muy rápido. Qwen3-Coder-30B-A3B case."
@@ -44,10 +44,10 @@
       "condition": "architecture == 'moe' && model_size_gb > vram_free_gb && model_size_gb <= (vram_free_gb + ram_free_gb) * 0.5",
       "result": {
         "strategy": "moe-cpu-offload",
-        "ngl": 99,
+        "ngl": "all",
         "n_cpu_moe_formula": "ceil((model_size_gb - vram_free_gb * 0.6) / layer_size_gb)",
         "expected_speed": "medium-fast",
-        "notes": "Caso Codacus GTX 1060: 35B MoE en 6GB VRAM + 24GB RAM = 17 tok/s."
+        "notes": "Receta comunitaria reportada en hardware específico; no es una garantía portable."
       }
     },
     {
@@ -70,7 +70,7 @@
         "strategy": "blocked",
         "recommendation": "Usar quantización más agresiva o modelo más pequeño",
         "expected_speed": "blocked",
-        "notes": "No forzar. OOM garantizado."
+        "notes": "No emitir comando. Recomendar un modelo más pequeño o reducir contexto."
       }
     }
   ],
@@ -82,8 +82,8 @@
     },
     {
       "context": "long-context (> 8K)",
-      "dense": "MTP no ayuda en long context. Usar KV cache quantization: --cache-type-k q4_0 --cache-type-v q4_0",
-      "moe": "TurboQuant si disponible: --cache-type-k turbo4 --cache-type-v turbo2"
+      "dense": "Para contexto largo en llama.cpp upstream usar KV conservador: --cache-type-k q8_0 --cache-type-v q8_0",
+      "moe": "TurboQuant solo en runtime compatible: --cache-type-k turbo4 --cache-type-v turbo3"
     },
     {
       "context": "coding",
@@ -95,7 +95,7 @@
     },
     {
       "context": "low-vram (<= 8GB)",
-      "general": "--no-mmap para evitar page faults. --mlock para prevenir swap. Matar procesos VRAM parasites (Ollama, ComfyUI, browsers con hardware accel)."
+      "general": "Mantener mmap por defecto. Usa --mlock solo con RAM libre y permisos suficientes; cierra procesos que consuman VRAM (Ollama, ComfyUI, browsers con aceleración)."
     }
   ],
   "flag_library": {
@@ -111,8 +111,8 @@
       "--no-mmap": "No usar memory mapping. Previene page faults pero usa más RAM.",
       "--mlock": "Lock modelo en RAM. Previene swap.",
       "--cache-reuse": "Reusar prompt cache (256 recomendado)",
-      "--cache-type-k": "Quantización KV cache K (q4_0, turbo4)",
-      "--cache-type-v": "Quantización KV cache V (q4_0, turbo2)"
+      "--cache-type-k": "KV Keys: q8_0 en upstream; turbo4 solo en TurboQuant compatible; no q4_0",
+      "--cache-type-v": "KV Values: q8_0 en upstream; turbo3 solo en TurboQuant compatible; no q4_0"
     },
     "moe": {
       "--n-cpu-moe": "Capas MoE a CPU. Crítico para MoE grande en poca VRAM.",

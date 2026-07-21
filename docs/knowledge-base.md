@@ -100,12 +100,11 @@ Donde N = número de capas MoE a poner en CPU.
 ```bash
 llama-server \
   -m Qwen3.6-35B-A3B-IQ4_XS.gguf \
-  -ngl 99 \
+  -ngl all \
   --n-cpu-moe 20 \
-  --no-mmap \
   --mlock \
-  --cache-type-k q4_0 \
-  --cache-type-v q4_0 \
+  --cache-type-k q8_0 \
+  --cache-type-v q8_0 \
   -c 8192 \
   -t 4 \
   -b 512 \
@@ -113,7 +112,7 @@ llama-server \
   --port 8080
 ```
 
-**Resultado:** 17 tok/s — production-stable por semanas.
+**Resultado reportado por la fuente:** ~17 tok/s en ese hardware/build. Trátalo como receta comunitaria, no como garantía portable.
 
 ### Valores de n-cpu-moe por VRAM tier (Codacus + comunidad)
 
@@ -131,7 +130,7 @@ llama-server \
 
 | Iteración | Cambio | tok/s | Delta |
 |-----------|--------|-------|-------|
-| 1 | Baseline (solo -ngl 99) | 3 | — |
+| 1 | Baseline (solo -ngl all) | 3 | — |
 | 2 | + `--n-cpu-moe 41` | 10 | +233% |
 | 3 | + `--no-mmap` | 13.5 | +35% |
 | 4 | n-cpu-moe 41→35 | 17 | +26% |
@@ -167,26 +166,19 @@ Reducir la precisión de los pesos del modelo para ahorrar memoria.
 
 ### Reglas de quantización
 
-1. **Q4_K_M es el MÍNIMO para trabajo real** — Calidad profesional garantizada (~95% del original)
-2. **Q5_K_M / Q6_K** — Si tienes VRAM de sobra. Mejor calidad, mismo modelo
-3. **IQ4_XS es mejor para MoE** (importance matrix, mejor calidad por bit)
-4. **UD (Unsloth Dynamic) supera a Q4_K_M** — igual calidad con 1.7GB menos, o mejor calidad al mismo peso (Codacus validado)
-5. **⚠️ Q3_K_S / Q3_K_M = SOLO emergencia VRAM (≤4GB)** — Calidad degradada (~80%), no para producción
-6. **❌ Q2_K = NUNCA para trabajo real** — Solo testing/experimentación (~60% calidad)
-7. **Nunca uses el quant default de Ollama/LM Studio** — baja cuantos de bartowski/Unsloth en HuggingFace (Codacus)
+1. **Q4_K_M es nuestro piso práctico para trabajo real** — no es una garantía universal; valida siempre el modelo/tarea
+2. **Q5_K_M / Q6_K** — Úsalos si el modelo sigue cabiendo con margen
+3. **IQ4_XS puede ser útil para MoE** cuando la quant específica fue creada con una importance matrix confiable
+4. **Unsloth Dynamic (UD)** cambia la precisión por tensor; evalúa el archivo exacto, no asumas superioridad universal
+5. **Q3_K_S / Q3_K_M** — Solo emergencia de memoria o pruebas; normalmente conviene un modelo menor en Q4/Q5
+6. **Q2_K** — Experimentación; no recomendado para trabajo crítico
+7. **No confíes en el quant por defecto de una GUI** — verifica nombre, tamaño, uploader y model card
 
-### ¿Por qué Q4 es el piso mínimo?
+### ¿Por qué Q4 es el piso práctico?
 
-| Aspecto | Q4_K_M | Q3_K_S | Q2_K |
-|---------|--------|--------|------|
-| **Calidad preservada** | ~95% | ~80% | ~60% |
-| **Coherencia en respuestas largas** | ✅ Estable | ⚠️ Degradada | ❌ Rota |
-| **Errores factuales** | Raros | Ocasionales | Frecuentes |
-| **Código generado** | Production-ready | Bugs sutiles | Bugs evidentes |
-| **Razonamiento multi-paso** | ✅ Funciona | ⚠️ Falla a veces | ❌ No confiable |
-| **Uso recomendado** | **Producción** | Testing/emergencia | Solo experimentación |
+La pérdida por quantización depende de arquitectura, capa, tarea y método de calibración; porcentajes universales como “95/80/60%” no son evidencia. En general, Q4_K_M conserva mejor el comportamiento que Q3/Q2 con un coste de memoria todavía razonable. Para código, razonamiento o agentes, valida el archivo exacto con tu tarea.
 
-**Regla de oro:** Si tu VRAM no permite Q4_K_M, usa un modelo más pequeño en Q4 antes que un modelo grande en Q3.
+**Regla de oro:** Si tu VRAM no permite Q4_K_M, usa un modelo más pequeño en Q4/Q5 antes que uno grande en Q3/Q2.
 
 ---
 
@@ -233,33 +225,32 @@ Memoria que guarda los tokens ya procesados para no recalcular attention. Crece 
 
 ### Tipos de KV cache quant
 
-| Tipo | Compresión | Calidad | Requiere FA |
-|------|-----------|---------|-------------|
-| f16 | 1x | Perfecta | No |
-| q8_0 | 2x | Muy buena | No |
-| **q4_0** | **4x** | **Zero loss** | **No** |
-| q4_1 | 4x | Ligeramente mejor | No |
-| iq4_nl | 4x | Mejor 4-bit | **Sí** |
-| **turbo4** | **~4x** | **Near-lossless** | **No** |
-| **turbo2** | **~8x** | **Buena** | **No** |
+| Tipo | Disponibilidad | Política GGUF Compass |
+|------|----------------|------------------------|
+| f16 | llama.cpp upstream | Máxima precisión, mayor memoria |
+| q8_0 | llama.cpp upstream | **Fallback conservador recomendado** |
+| q5_0/q5_1 | llama.cpp upstream | Alternativa avanzada; validar por modelo |
+| q4_0/q4_1/iq4_nl | llama.cpp upstream | Soportados, pero **q4_0 no se recomienda** por riesgo de coherencia/loops |
+| turbo4/turbo3 | Solo fork TurboQuant compatible | **Default FJSON en runtime compatible**; no funciona en upstream |
 
-### Fórmula TurboQuant (validada)
+### Política TurboQuant validada por FJSON
 
 ```bash
---cache-type-k turbo4    # Keys: near-lossless
---cache-type-v turbo2    # Values: compressed
+--cache-type-k turbo4
+--cache-type-v turbo3
 ```
 
-**Por qué:** K determina qué tokens coinciden (necesita precisión). V puede comprimirse más.
+K conserva más precisión; V usa Turbo3. Si el binario no lista ambos tipos en `llama-server --help`, usa `q8_0/q8_0`. Nunca sustituyas silenciosamente por `q4_0/q4_0`.
 
 ### TurboQuant — estado actual (2026-07)
 
 | Implementación | Estado | Flags | Compresión |
 |----------------|--------|-------|-----------|
-| **TheTom/llama-cpp-turboquant** | ✅ Funcional | `-ctk turbo4 -ctv turbo2` | ~4x |
+| **TheTom/llama-cpp-turboquant** | ✅ Funcional | `-ctk turbo4 -ctv turbo3` | ~4x |
 | **turboquant_plus (AmesianX)** | ✅ Fork mejorado | `-ctk tbq3 -ctv tbq3` | ~4.7x |
 | **PR #21089 (mainline)** | 🔄 Abierto | `-ctk tbq3_0 -ctv tbq3_0` | ~3-4 bits |
-| **KV cache q4_0 (mainline)** | ✅ Estable | `-ctk q4_0 -ctv q4_0` | 4x |
+| **KV q8_0 (mainline)** | ✅ Upstream | `-ctk q8_0 -ctv q8_0` | Conservador |
+| **KV q4_0 (mainline)** | ⚠️ Soportado, no recomendado aquí | `-ctk q4_0 -ctv q4_0` | Riesgo de degradación/loops |
 
 > **Nota Codacus:** TurboQuant no mejora tok/s directamente, pero **desbloquea contextos largos** (256K vs 64K) que de otra forma serían imposibles.
 
@@ -343,7 +334,7 @@ Block Diffusion para speculative decoding:
 │
 ├── Creativo → Q4_K_M mínimo. Sin spec dec (9% acceptance)
 │
-└── RAG/documentos → Q4_K_M + KV cache quant (q4_0). ctx 32K+
+└── RAG/documentos → Q4_K_M + KV q8_0/q8_0 (upstream) o Turbo4/3 (fork compatible). ctx 32K+
 ```
 
 ---
@@ -358,10 +349,10 @@ Block Diffusion para speculative decoding:
 
 llama-server \
   -m Qwen3.6-35B-A3B-IQ4_XS.gguf \
-  -ngl 99 \
+  -ngl all \
   --n-cpu-moe 20 \
-  --no-mmap --mlock \
-  --cache-type-k q4_0 --cache-type-v q4_0 \
+  --mlock \
+  --cache-type-k q8_0 --cache-type-v q8_0 \
   -c 8192 -t 4 -b 512 \
   --flash-attn auto \
   --port 8080
@@ -377,7 +368,7 @@ llama-server \
 
 llama-server \
   -m Qwen3.5-9B-Q4_K_M.gguf \
-  -ngl 99 \
+  -ngl all \
   -c 16384 -t 8 -b 512 \
   --flash-attn auto \
   --spec-type draft-mtp --spec-draft-n-max 2 \
@@ -395,10 +386,10 @@ llama-server \
 
 llama-server \
   -m Qwen3.6-27B-Q3_K_S.gguf \
-  -ngl 99 \
+  -ngl all \
   -c 32768 -t 12 -b 512 \
   --flash-attn auto \
-  --cache-type-k q4_0 --cache-type-v q4_0 \
+  --cache-type-k q8_0 --cache-type-v q8_0 \
   --cache-reuse 256 \
   --port 8080
 
@@ -413,10 +404,10 @@ llama-server \
 
 llama-server \
   -m Qwen3.6-35B-A3B-Q4_K_M.gguf \
-  -ngl 99 --n-cpu-moe 10 \
+  -ngl all --n-cpu-moe 10 \
   -c 65536 -t 16 -b 512 \
   --flash-attn auto \
-  --cache-type-k q4_0 --cache-type-v q4_0 \
+  --cache-type-k q8_0 --cache-type-v q8_0 \
   --mlock --port 8080
 
 # Resultado: ~45 tok/s
@@ -430,10 +421,9 @@ llama-server \
 
 llama-server \
   -m Qwen3.6-35B-A3B-Q4_K_M.gguf \
-  -ngl 99 \
+  -ngl all \
   -c 131072 -t 12 \
-  --no-mmap \
-  --cache-type-k q4_0 --cache-type-v q4_0 \
+  --cache-type-k q8_0 --cache-type-v q8_0 \
   --cache-reuse 256 \
   --port 8080
 
