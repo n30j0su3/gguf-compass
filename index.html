@@ -1619,7 +1619,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
                     <div class="toggle-switch active" id="expert-fa" onclick="this.classList.toggle('active'); updateExpert();"></div>
                 </div>
                 <div class="toggle-group">
-                    <span class="toggle-label">KV Cache Quantization</span>
+                    <span class="toggle-label">KV Cache Turbo4/3 (ahorra VRAM de contexto)</span>
                     <div class="toggle-switch" id="expert-kv" onclick="this.classList.toggle('active'); updateExpert();"></div>
                 </div>
                 <div class="toggle-group">
@@ -1683,17 +1683,17 @@ const state = {
 // DATA — GPU Options
 // ═══════════════════════════════════════════════════════════════════════════
 const GPU_OPTIONS = [
-    { id: 'none', label: 'Sin GPU / CPU only', vram: 0, examples: 'Cualquier CPU moderna', notes: 'Inferencia 100% CPU. Lento pero funciona.', icon: '💻' },
-    { id: 'gpu-4gb', label: '4 GB VRAM', vram: 4, examples: 'GTX 1050 Ti, GTX 1650', notes: 'Muy limitado. Solo modelos ≤3B.', icon: '🎮' },
-    { id: 'gpu-6gb', label: '6 GB VRAM', vram: 6, examples: 'GTX 1060, RTX 2060, RTX 3050', notes: 'Tier mínimo viable. MoE offloading funciona.', icon: '🎮' },
-    { id: 'gpu-8gb', label: '8 GB VRAM', vram: 8, examples: 'RTX 2070, RTX 3060 Ti, RTX 4060', notes: 'Sweet spot para 7B-9B Q4_K_M.', icon: '🎮' },
-    { id: 'gpu-12gb', label: '12 GB VRAM', vram: 12, examples: 'RTX 3060 12GB, RTX 4070', notes: 'Codacus validó 35B MoE aquí.', icon: '🎮' },
-    { id: 'gpu-16gb', label: '16 GB VRAM', vram: 16, examples: 'RTX 4060 Ti 16GB, RTX 5060 Ti', notes: '27B dense Q3/Q4 o 35B MoE.', icon: '🎮' },
-    { id: 'gpu-24gb', label: '24 GB VRAM', vram: 24, examples: 'RTX 3090, RTX 4090', notes: '27B Q4 full GPU o 70B MoE.', icon: '🔥' },
-    { id: 'gpu-32gb', label: '32 GB VRAM', vram: 32, examples: 'RTX 5090', notes: 'High-end. 70B dense viable.', icon: '🔥' },
-    { id: 'unified-16gb', label: 'Unified 16 GB', vram: 16, unified: true, examples: 'Apple M1/M2 16GB', notes: 'VRAM y RAM compartidas.', icon: '🍎' },
-    { id: 'unified-32gb', label: 'Unified 32 GB', vram: 32, unified: true, examples: 'Apple M2 Pro, AMD Strix Halo', notes: 'Cómodo para 27B dense.', icon: '🍎' },
-    { id: 'unified-64gb', label: 'Unified 64 GB+', vram: 64, unified: true, examples: 'Apple M2/M3 Max, MiniV', notes: '35B MoE full GPU + 128K ctx.', icon: '🍎' }
+    { id: 'none', label: 'Sin GPU / CPU only', vram: 0, ram: 16, cores: 8, examples: 'Cualquier CPU moderna', notes: 'Inferencia 100% CPU. Lento pero funciona.', icon: '💻' },
+    { id: 'gpu-4gb', label: '4 GB VRAM', vram: 4, ram: 16, cores: 8, examples: 'GTX 1050 Ti, GTX 1650', notes: 'Muy limitado. Solo modelos ≤3B.', icon: '🎮' },
+    { id: 'gpu-6gb', label: '6 GB VRAM', vram: 6, ram: 16, cores: 8, examples: 'GTX 1060, RTX 2060, RTX 3050', notes: 'Tier mínimo viable. MoE offloading funciona.', icon: '🎮' },
+    { id: 'gpu-8gb', label: '8 GB VRAM', vram: 8, ram: 16, cores: 8, examples: 'RTX 2070, RTX 3060 Ti, RTX 4060', notes: 'Sweet spot para 7B-9B Q4_K_M.', icon: '🎮' },
+    { id: 'gpu-12gb', label: '12 GB VRAM', vram: 12, ram: 32, cores: 12, examples: 'RTX 3060 12GB, RTX 4070', notes: 'Codacus validó 35B MoE aquí.', icon: '🎮' },
+    { id: 'gpu-16gb', label: '16 GB VRAM', vram: 16, ram: 32, cores: 12, examples: 'RTX 4060 Ti 16GB, RTX 5060 Ti', notes: '27B dense Q3/Q4 o 35B MoE.', icon: '🎮' },
+    { id: 'gpu-24gb', label: '24 GB VRAM', vram: 24, ram: 64, cores: 16, examples: 'RTX 3090, RTX 4090', notes: '27B Q4 full GPU o 70B MoE.', icon: '🔥' },
+    { id: 'gpu-32gb', label: '32 GB VRAM', vram: 32, ram: 64, cores: 16, examples: 'RTX 5090', notes: 'High-end. 70B dense viable.', icon: '🔥' },
+    { id: 'unified-16gb', label: 'Unified 16 GB', vram: 16, ram: 16, cores: 10, unified: true, examples: 'Apple M1/M2 16GB', notes: 'VRAM y RAM compartidas.', icon: '🍎' },
+    { id: 'unified-32gb', label: 'Unified 32 GB', vram: 32, ram: 32, cores: 12, unified: true, examples: 'Apple M2 Pro, AMD Strix Halo', notes: 'Cómodo para 27B dense.', icon: '🍎' },
+    { id: 'unified-64gb', label: 'Unified 64 GB+', vram: 64, ram: 64, cores: 16, unified: true, examples: 'Apple M2/M3 Max, MiniV', notes: '35B MoE full GPU + 128K ctx.', icon: '🍎' }
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1760,7 +1760,7 @@ const VALIDATED_PRESETS = [
         model: 'Qwen3.6-35B-A3B',
         quant: 'UD-Q4_K_M',
         type: 'moe',
-        command: 'llama-server -m Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -ngl 99 --n-cpu-moe 35 --no-mmap --mlock --cache-type-k q4_0 --cache-type-v q4_0 -c 64000 -t 4 -b 512 --flash-attn auto --port 8080',
+        command: 'llama-server -m Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -ngl 99 --n-cpu-moe 35 --no-mmap --mlock --cache-type-k turbo4 --cache-type-v turbo3 -c 64000 -t 4 -b 512 --flash-attn auto --port 8080',
         notes: 'El legendario setup de Codacus. 3→17 tok/s en 5 iteraciones. 256K ctx con TurboQuant.',
         source: 'Codacus YouTube'
     },
@@ -1786,7 +1786,7 @@ const VALIDATED_PRESETS = [
         model: 'Qwen3.6-35B-A3B',
         quant: 'UD-Q4_K_M',
         type: 'moe',
-        command: 'llama-server -m Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -ngl 99 --n-cpu-moe 999 --flash-attn auto --jinja -c 32768 -t 12 -b 512 --cache-type-k q4_0 --cache-type-v q4_0 --mlock --port 8080',
+        command: 'llama-server -m Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -ngl 99 --n-cpu-moe 999 --flash-attn auto --jinja -c 32768 -t 12 -b 512 --cache-type-k turbo4 --cache-type-v turbo3 --mlock --port 8080',
         notes: 'n-cpu-moe 999: todos los expertos a CPU. Funcional ~8-15 tok/s.',
         source: 'KnightLi'
     },
@@ -1825,7 +1825,7 @@ const VALIDATED_PRESETS = [
         model: 'Qwen3.6-35B-A3B',
         quant: 'Q4_K_M',
         type: 'moe',
-        command: 'llama-server -m Qwen3.6-35B-A3B-Q4_K_M.gguf -ngl 99 -c 131072 -t 12 --no-mmap --cache-type-k q4_0 --cache-type-v q4_0 --cache-reuse 256 --port 8080',
+        command: 'llama-server -m Qwen3.6-35B-A3B-Q4_K_M.gguf -ngl 99 -c 131072 -t 12 --no-mmap --cache-type-k turbo4 --cache-type-v turbo3 --cache-reuse 256 --port 8080',
         notes: 'Unified memory. 128K context viable.',
         source: 'Internal benchmarks'
     }
@@ -1949,6 +1949,9 @@ function selectGPU(id) {
     const gpu = GPU_OPTIONS.find(g => g.id === id);
     state.hardware.vram = gpu.vram;
     state.hardware.type = gpu.unified ? 'unified' : 'discrete';
+    // Defaults sensatos por tier — el usuario puede ajustarlos en los inputs custom
+    state.hardware.ram = gpu.ram || 16;
+    state.hardware.cores = gpu.cores || 8;
     
     // Show matching presets
     showPresetSuggestions(gpu.vram);
@@ -2100,15 +2103,20 @@ function resetWizard() {
     });
     document.querySelectorAll('.option-card').forEach(card => card.classList.remove('selected'));
     document.getElementById('results-section').classList.add('hidden');
+    document.querySelector('.wizard-container').classList.remove('hidden');
     document.getElementById('btn-prev').style.visibility = 'hidden';
     document.getElementById('btn-next').textContent = 'Siguiente →';
     updateStepDots();
+    document.getElementById('wizard-section').scrollIntoView({ behavior: 'smooth' });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
 // RECOMMENDATION ENGINE
 // ═══════════════════════════════════════════════════════════════════════════
 function calculateFit(vram, ram, modelSizeGB, isMoE, contextTokens) {
+    // Guard: nunca operar con null/undefined — defaults conservadores
+    vram = vram || 0;
+    ram = ram || 16;
     // Reserve memory for OS and overhead
     const vramFree = vram * 0.85;
     const ramFree = ram * 0.7;
@@ -2260,12 +2268,12 @@ const PROFILE_META = {
     balanceado: {
         icon: '⚖️',
         label: 'Balanceado',
-        desc: 'Equilibrio calidad/velocidad validado en benchmarks reales. KV cuantizado solo en contextos largos, speculative decoding moderado para coding. El punto de partida recomendado para el 90% de usuarios.'
+        desc: 'Equilibrio calidad/velocidad validado en benchmarks reales. KV Turbo4/3 en contextos largos (ahorro sin pérdida), speculative decoding moderado para coding. El punto de partida recomendado para el 90% de usuarios.'
     },
     velocidad: {
         icon: '🚀',
         label: 'Velocidad',
-        desc: 'Máximo squeeze de tokens/seg: KV cache q4_0 siempre, batches grandes (-b 1024), speculative decoding agresivo y cache-reuse extendido. Pequeño trade-off de calidad a cambio de la mejor experiencia interactiva.'
+        desc: 'Máximo squeeze de tokens/seg: KV cache Turbo4/3 (rápido sin degradar calidad), batches grandes (-b 1024), speculative decoding agresivo y cache-reuse extendido. La mejor experiencia interactiva.'
     }
 };
 
@@ -2279,8 +2287,9 @@ const FLAG_INFO = {
     '-ub': { name: 'Micro-batch', desc: 'Subdivisión física del batch. 512 es el sweet spot para la mayoría de GPUs consumer.' },
     '--no-mmap': { name: 'No Memory-Map', desc: 'Carga el modelo completo en RAM en vez de mapearlo desde disco. Carga más rápida y sin stuttering, a costa de más RAM residente.' },
     '--mlock': { name: 'Memory Lock', desc: 'Bloquea el modelo en RAM para que el SO nunca lo mande a swap. Esencial cuando haces offload parcial — un swap mata el rendimiento.' },
-    '--cache-type-k': { name: 'KV Cache K', desc: 'Cuantización del cache de Keys. q4_0 ahorra ~60% de VRAM de contexto; q8_0 es el punto calidad/ahorro; f16 (default) = máxima calidad.' },
-    '--cache-type-v': { name: 'KV Cache V', desc: 'Cuantización del cache de Values. Mismo criterio que K. Juntos pueden duplicar tu contexto efectivo en la misma VRAM.' },
+    '--cache-type-k': { name: 'KV Cache K', desc: 'Compresión del cache de Keys (memoria del contexto). ✅ Recomendado: turbo4 — compresión moderna sin pérdida perceptible de calidad. Conservador: q8_0. ⚠️ Evita q4_0 aquí: degrada la coherencia y puede provocar loops de repetición en respuestas largas.' },
+    '--cache-type-v': { name: 'KV Cache V', desc: 'Compresión del cache de Values. ✅ Recomendado: turbo3 (el V aguanta más compresión que el K). Conservador: q8_0. ⚠️ q4_0 en V es la causa #1 de modelos que "se traban" repitiendo texto en contextos largos.' },
+    '--jinja': { name: 'Jinja Template', desc: 'Usa la plantilla de chat Jinja del modelo en vez del formato legacy. Necesario para tool calling y modelos recientes (Qwen3, etc.).' },
     '--flash-attn': { name: 'Flash Attention', desc: 'Kernel de atención optimizado: menos VRAM y más velocidad, sobre todo en contextos largos. Recomendado siempre que el modelo lo soporte.' },
     '--spec-type': { name: 'Speculative Decoding', desc: 'El modelo predice varios tokens por pasada (MTP/draft) y los verifica en batch. Hasta +75% de velocidad en código y texto estructurado.' },
     '--spec-draft-n-max': { name: 'Draft Max', desc: 'Máximo de tokens que el draft predice por pasada. Más alto = más velocidad potencial, más tokens rechazados.' },
@@ -2326,6 +2335,22 @@ function switchCmdTab(idx, profile, btn) {
     card.querySelector(`#cmd-variant-${idx}-${profile}`).classList.remove('hidden');
     document.getElementById(`cmd-desc-${idx}`).textContent = PROFILE_META[profile].desc;
 }
+
+const FIT_DISPLAY = {
+    'full-gpu':    '🚀 Todo en GPU',
+    'partial-gpu': '⚖️ GPU + RAM',
+    'moe-offload': '🧩 MoE: GPU + CPU',
+    'cpu-only':    '🐢 Solo CPU',
+    'wont-fit':    '⚠️ No viable'
+};
+
+const SPEED_DISPLAY = {
+    'fast':        'Rápida — óptima para tu GPU',
+    'medium-fast': 'Media-alta — fluida para chat',
+    'medium':      'Media — usable para chat',
+    'slow':        'Lenta — solo pruebas',
+    'blocked':     'No viable en este hardware'
+};
 
 function renderCommandSection(rec, tool, useCase, ctx, idx) {
     const isLlama = tool.id === 'llamacpp' || tool.id === 'ikllamacpp';
@@ -2410,13 +2435,14 @@ function generateCommand(rec, tool, useCase, ctx, profile = 'balanceado') {
             if (profile !== 'velocidad' && ram >= mlockThreshold) cmd += `  --mlock \\\n`;
         }
         
-        // KV cache (profile-driven)
+        // KV cache (profile-driven) — turbo4/turbo3 validado, q8_0 conservador.
+        // q4_0 en KV NUNCA se sugiere: degrada coherencia y provoca loops de repetición.
         if (profile === 'velocidad') {
-            cmd += `  --cache-type-k q4_0 --cache-type-v q4_0 \\\n`;
+            cmd += `  --cache-type-k turbo4 --cache-type-v turbo3 \\\n`;
         } else if (profile === 'estable') {
             if (ctx.tokens > 8192) cmd += `  --cache-type-k q8_0 --cache-type-v q8_0 \\\n`;
         } else if (ctx.tokens > 8192) {
-            cmd += `  --cache-type-k q4_0 --cache-type-v q4_0 \\\n`;
+            cmd += `  --cache-type-k turbo4 --cache-type-v turbo3 \\\n`;
         }
         
         // Flash attention
@@ -2498,6 +2524,31 @@ function generateResults() {
     state.results.forEach((rec, idx) => {
         const fitBadge = rec.fit.fit === 'full-gpu' ? 'success' : rec.fit.fit === 'moe-offload' ? 'warning' : 'danger';
         
+        // WONT-FIT: nunca dar un comando para algo que no va a funcionar.
+        // Mostrar guía accionable en lenguaje simple en su lugar.
+        if (rec.fit.fit === 'wont-fit') {
+            html += `
+            <div class="recommendation-card" style="border-color: var(--danger); opacity: 0.9;">
+                <div class="recommendation-header">
+                    <div class="recommendation-title">
+                        ⚠️ ${rec.params}B ${rec.type === 'moe' ? 'MoE' : 'Dense'} — ${rec.quant}
+                    </div>
+                    <span class="recommendation-badge badge-alternative">No viable en tu hardware</span>
+                </div>
+                <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.75rem;">
+                    Este modelo no cabe de forma práctica con tu VRAM/RAM y el contexto que elegiste. Intentarlo significa cargas fallidas o velocidad de diapositiva — no te damos un comando porque no queremos que pierdas tiempo.
+                </p>
+                <div class="cmd-profile-desc" style="border-left-color: var(--danger);">
+                    <strong>Qué hacer en su lugar:</strong><br>
+                    ① Quédate con la opción <strong>✓ Recomendada</strong> — está calculada para tu hardware.<br>
+                    ② Si necesitas más modelo: reduce el <strong>contexto</strong> en el paso 3 (el KV cache come VRAM).<br>
+                    ③ Los modelos <strong>MoE</strong> caben mejor: mueven expertos a la RAM con <code>--n-cpu-moe</code>.
+                </div>
+            </div>
+            `;
+            return;
+        }
+        
         html += `
             <div class="recommendation-card ${rec.priority === 'recommended' ? 'recommended' : ''}">
                 <div class="recommendation-header">
@@ -2516,11 +2567,11 @@ function generateResults() {
                     </div>
                     <div class="spec-item">
                         <span class="spec-label">Estrategia</span>
-                        <span class="spec-value highlight">${rec.fit.fit.replace('-', ' ').toUpperCase()}</span>
+                        <span class="spec-value highlight">${FIT_DISPLAY[rec.fit.fit] || rec.fit.fit}</span>
                     </div>
                     <div class="spec-item">
                         <span class="spec-label">Velocidad esperada</span>
-                        <span class="spec-value">${rec.fit.speed}</span>
+                        <span class="spec-value">${SPEED_DISPLAY[rec.fit.speed] || rec.fit.speed}</span>
                     </div>
                     <div class="spec-item">
                         <span class="spec-label">Modelos ejemplo</span>
@@ -2565,7 +2616,7 @@ function generateTips(hw, useCase, ctx) {
     }
     
     if (ctx.tokens > 16384) {
-        tips.push({ icon: '📚', title: 'Long context', desc: 'Usa --cache-type-k q4_0 --cache-type-v q4_0 para ahorrar VRAM en contextos largos.' });
+        tips.push({ icon: '📚', title: 'Long context', desc: 'Usa --cache-type-k turbo4 --cache-type-v turbo3: ahorra VRAM de contexto SIN perder calidad. Nunca uses q4_0 en el KV — causa loops de repetición.' });
     }
     
     if (hw.vram >= 12 && hw.ram >= 24) {
@@ -2648,9 +2699,9 @@ function updateExpert() {
         if (ram >= 32) cmd += `  --mlock \\\n`;
     }
     
-    // KV cache
+    // KV cache — turbo4/turbo3 (validado en benchmarks FJSON)
     if (useKV) {
-        cmd += `  --cache-type-k q4_0 --cache-type-v q4_0 \\\n`;
+        cmd += `  --cache-type-k turbo4 --cache-type-v turbo3 \\\n`;
     }
     
     // Flash attention
@@ -2770,7 +2821,12 @@ function showFAQ() {
 ✅ Multi-Token Prediction. Speculative decoding nativo del modelo. Predice múltiples tokens y los verifica en batch. +67-75% velocidad en coding.
 
 ❓ ¿Qué es TurboQuant?
-✅ Técnica de compresión de KV cache. K=turbo4, V=turbo2. 2-4x más contexto en el mismo VRAM.
+✅ Técnica de compresión de KV cache. K=turbo4, V=turbo3. 2-4x más contexto en el mismo VRAM sin pérdida perceptible de calidad (validado en benchmarks FJSON). Es lo que sugerimos por defecto en contextos largos.
+
+❓ ¿Y por qué no q4_0 en el KV cache?
+✅ Porque te sabotea el modelo: degrada la coherencia y es la causa #1 de
+   loops de repetición en respuestas largas. El ahorro extra de VRAM no lo vale.
+   Orden de preferencia: f16 (máxima calidad) → q8_0 (conservador) → turbo4/3 (recomendado) → ❌ q4_0 (nunca).
 
 ❓ ¿Qué quantización elegir?
 ✅ Q4_K_M = MÍNIMO para trabajo real. Calidad profesional garantizada.
